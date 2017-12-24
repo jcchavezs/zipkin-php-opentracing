@@ -3,12 +3,7 @@
 namespace ZipkinOpenTracing;
 
 use InvalidArgumentException;
-use OpenTracing\Exceptions\InvalidSpanOption;
-use OpenTracing\Exceptions\SpanContextNotFound;
-use OpenTracing\Exceptions\UnsupportedFormat;
-use OpenTracing\Propagators\Reader;
-use OpenTracing\Propagators\Writer;
-use OpenTracing\Span;
+use OpenTracing\Formats;
 use OpenTracing\SpanContext;
 use OpenTracing\SpanOptions;
 use OpenTracing\Tracer as OTTracer;
@@ -34,21 +29,14 @@ final class Tracer implements OTTracer
      */
     private $propagation;
 
-    /**
-     * Tracer constructor.
-     * @param ZipkinTracing $tracing
-     */
-    public function __construct(ZipkinTracing $tracing) {
+    public function __construct(ZipkinTracing $tracing)
+    {
         $this->tracer = $tracing->getTracer();
         $this->propagation = $tracing->getPropagation();
     }
 
     /**
-     * @param string $operationName
-     * @param array|SpanOptions $options
-     * @return Span
-     * @throws \OpenTracing\Exceptions\InvalidReferencesSet
-     * @throws InvalidSpanOption for invalid option
+     * @inheritdoc
      */
     public function startSpan($operationName, $options = [])
     {
@@ -62,7 +50,7 @@ final class Tracer implements OTTracer
             /**
              * @var ZipkinOpenTracingContext $context
              */
-            $context = $options->getReferences()[0];
+            $context = $options->getReferences()[0]->getContext();
             $span = $this->tracer->newChild($context->getContext());
         }
 
@@ -76,14 +64,11 @@ final class Tracer implements OTTracer
     }
 
     /**
-     * @param ZipkinOpenTracingContext|SpanContext $spanContext
-     * @param int $format
-     * @param Writer $carrier
-     * @throws UnsupportedFormat when the format is not recognized by the tracer
-     * implementation
-     * @throws \InvalidArgumentException when the SpanContext is not a ZipkinOpenTracingContext
+     * @inheritdoc
+     * @throws \InvalidArgumentException
+     * @throws \UnexpectedValueException
      */
-    public function inject(SpanContext $spanContext, $format, Writer $carrier)
+    public function inject(SpanContext $spanContext, $format, &$carrier)
     {
         if ($spanContext instanceof ZipkinOpenTracingContext) {
             $setter = $this->getSetterByFormat($format);
@@ -98,31 +83,18 @@ final class Tracer implements OTTracer
     }
 
     /**
-     * @param int $format
-     * @param Reader $carrier
-     * @return SpanContext
-     * @throws SpanContextNotFound when a context could not be extracted from Reader
-     * @throws UnsupportedFormat when the format is not recognized by the tracer
-     * implementation
+     * @inheritdoc
+     * @throws \UnexpectedValueException
      */
-    public function extract($format, Reader $carrier)
+    public function extract($format, $carrier)
     {
         $getter = $this->getGetterByFormat($format);
         $extractor =  $this->propagation->getExtractor($getter);
-        return $extractor($carrier);
+        return ZipkinOpenTracingContext::fromTraceContext($extractor($carrier));
     }
 
     /**
-     * Allow tracer to send span data to be instrumented.
-     *
-     * This method might not be needed depending on the tracing implementation
-     * but one should make sure this method is called after the request is finished.
-     * As an implementor, a good idea would be to use an asynchronous message bus
-     * or use the call to fastcgi_finish_request in order to not to delay the end
-     * of the request to the client.
-     *
-     * @see fastcgi_finish_request()
-     * @see https://www.google.com/search?q=message+bus+php
+     * @inheritdoc
      */
     public function flush()
     {
@@ -132,26 +104,28 @@ final class Tracer implements OTTracer
     /**
      * @param string $format
      * @return Setter
+     * @throws \UnexpectedValueException
      */
     private function getSetterByFormat($format)
     {
-        switch ($format) {
-            default:
-                return new Map();
-                break;
+        if ($format === Formats\TEXT_MAP) {
+            return new Map();
         }
+
+        throw new \UnexpectedValueException(sprintf('Format %s not implemented', $format));
     }
 
     /**
      * @param string $format
      * @return Getter
+     * @throws \UnexpectedValueException
      */
     private function getGetterByFormat($format)
     {
-        switch ($format) {
-            default:
-                return new Map();
-                break;
+        if ($format === Formats\TEXT_MAP) {
+            return new Map();
         }
+
+        throw new \UnexpectedValueException(sprintf('Format %s not implemented', $format));
     }
 }

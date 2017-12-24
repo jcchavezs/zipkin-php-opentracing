@@ -27,7 +27,7 @@ final class Span implements OTSpan
     private $context;
 
     /**
-     * @param $operationName
+     * @param string $operationName
      * @param ZipkinSpan $span
      */
     private function __construct($operationName, ZipkinSpan $span)
@@ -48,7 +48,7 @@ final class Span implements OTSpan
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getOperationName()
     {
@@ -56,11 +56,7 @@ final class Span implements OTSpan
     }
 
     /**
-     * Yields the SpanContext for this Span. Note that the return value of
-     * Span::getContext() is still valid after a call to Span::finish(), as is
-     * a call to Span::getContext() after a call to Span::finish().
-     *
-     * @return SpanContext
+     * @inheritdoc
      */
     public function getContext()
     {
@@ -68,17 +64,7 @@ final class Span implements OTSpan
     }
 
     /**
-     * Sets the end timestamp and finalizes Span state.
-     *
-     * With the exception of calls to Context() (which are always allowed),
-     * finish() must be the last call made to any span instance, and to do
-     * otherwise leads to undefined behavior
-     *
-     * If the span is already finished, a warning should be logged.
-     *
-     * @param float|int|\DateTimeInterface|null $finishTime if passing float or int
-     * it should represent the timestamp (including as many decimal places as you need)
-     * @param array $logRecords
+     * @inheritdoc
      */
     public function finish($finishTime = null, array $logRecords = [])
     {
@@ -86,9 +72,7 @@ final class Span implements OTSpan
     }
 
     /**
-     * If the span is already finished, a warning should be logged.
-     *
-     * @param string $newOperationName
+     * @inheritdoc
      */
     public function overwriteOperationName($newOperationName)
     {
@@ -97,14 +81,7 @@ final class Span implements OTSpan
     }
 
     /**
-     * Sets tags to the Span in key:value format, key must be a string and tag must be either
-     * a string, a boolean value, or a numeric type.
-     *
-     * As an implementor, consider using "standard tags" listed in {@see \OpenTracing\Ext\Tags}
-     *
-     * If the span is already finished, a warning should be logged.
-     *
-     * @param array $tags
+     * @inheritdoc
      */
     public function setTags(array $tags)
     {
@@ -118,28 +95,17 @@ final class Span implements OTSpan
     }
 
     /**
-     * Adds a log record to the span
-     *
-     * If the span is already finished, a warning should be logged.
-     *
-     * @param array $fields
-     * @param int|float|\DateTimeInterface $timestamp
+     * @inheritdoc
      */
     public function log(array $fields = [], $timestamp = null)
     {
-        foreach($fields as $field) {
+        foreach ($fields as $field) {
             $this->span->annotate($field, $timestamp);
         }
     }
 
     /**
-     * Adds a baggage item to the SpanContext which is immutable so it is required to use SpanContext::withBaggageItem
-     * to get a new one.
-     *
-     * If the span is already finished, a warning should be logged.
-     *
-     * @param string $key
-     * @param string $value
+     * @inheritdoc
      */
     public function addBaggageItem($key, $value)
     {
@@ -147,8 +113,7 @@ final class Span implements OTSpan
     }
 
     /**
-     * @param string $key
-     * @return string|null
+     * @inheritdoc
      */
     public function getBaggageItem($key)
     {
