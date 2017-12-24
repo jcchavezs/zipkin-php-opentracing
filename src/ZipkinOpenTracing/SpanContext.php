@@ -4,8 +4,7 @@ namespace ZipkinOpenTracing;
 
 use ArrayIterator;
 use OpenTracing\SpanContext as OTSpanContext;
-use Traversable;
-use Zipkin\TraceContext;
+use Zipkin\Propagation\TraceContext;
 
 final class SpanContext implements OTSpanContext
 {
@@ -19,17 +18,17 @@ final class SpanContext implements OTSpanContext
         $this->baggageItems = $baggageItems;
     }
 
+    /**
+     * @param TraceContext $traceContext
+     * @return SpanContext
+     */
     public static function fromTraceContext(TraceContext $traceContext)
     {
         return new self($traceContext);
     }
 
     /**
-     * Retrieve an external iterator
-     * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
-     * @return Traversable An instance of an object implementing <b>Iterator</b> or
-     * <b>Traversable</b>
-     * @since 5.0.0
+     * @inheritdoc
      */
     public function getIterator()
     {
@@ -37,8 +36,7 @@ final class SpanContext implements OTSpanContext
     }
 
     /**
-     * @param string $key
-     * @return string|null
+     * @inheritdoc
      */
     public function getBaggageItem($key)
     {
@@ -46,11 +44,7 @@ final class SpanContext implements OTSpanContext
     }
 
     /**
-     * Creates a new SpanContext out of the existing one and the new key:value pair.
-     *
-     * @param string $key
-     * @param string $value
-     * @return OTSpanContext
+     * @inheritdoc
      */
     public function withBaggageItem($key, $value)
     {
@@ -58,7 +52,7 @@ final class SpanContext implements OTSpanContext
     }
 
     /**
-     * @return TraceContext
+     * @inheritdoc
      */
     public function getContext()
     {

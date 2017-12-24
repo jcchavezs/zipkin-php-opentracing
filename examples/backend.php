@@ -1,60 +1,27 @@
 <?php
 
-use GuzzleHttp\Client;
-use OpenTracing\Carriers\HttpHeaders;
-use OpenTracing\Tracer;
-use Zipkin\Annotation;
-use Zipkin\Endpoint;
-use Zipkin\Samplers\BinarySampler;
-use Zipkin\Timestamp;
-use Zipkin\TracingBuilder;
+use OpenTracing\Formats;
 
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
-function build_tracer()
-{
-    $endpoint = Endpoint::create('frontend', '127.0.0.3', null, 1234);
-    $client = new Client();
-    $logger = new \Psr\Log\NullLogger();
-
-    $reporter = new Zipkin\Reporters\HttpLogging($client, $logger);
-    $sampler = BinarySampler::createAsAlwaysSample();
-    $tracing = TracingBuilder::create()
-        ->havingLocalEndpoint($endpoint)
-        ->havingSampler($sampler)
-        ->havingReporter($reporter)
-        ->build();
-
-    return new ZipkinOpenTracing\Tracer($tracing);
-}
-
-$tracer = build_tracer();
+$tracer = build_tracer('backend', '127.0.0.2');
 
 \OpenTracing\GlobalTracer::set($tracer);
 
-$request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+$carrier = getallheaders();
 
-$carrier = array_map(function ($header) {
-    return $header[0];
-}, $request->headers->all());
-
-$traceContext = $tracer->extract(Tracer::FORMAT_HTTP_HEADERS, $carrier);
+$traceContext = $tracer->extract(Formats\TEXT_MAP, $carrier);
 
 $span = $tracer->startSpan('http_request', [
     'child_of' => $traceContext
 ]);
 
-$span->log([Annotation::SERVER_RECEIVE => Timestamp\now()]);
-
 usleep(100);
 
 $childSpan = $tracer->startSpan('user:get_list:mysql_query', [
-    'child_of' => $span
+    'child_of' => $span,
 ]);
-
-$carrier = HttpHeaders::fromHeaders([]);
-
-$childSpan->setTags([Annotation::SERVER_SEND => Timestamp\now()]);
 
 $childSpan->finish();
 

@@ -5,7 +5,7 @@ namespace ZipkinOpenTracingTests\Unit;
 use PHPUnit_Framework_TestCase;
 use Zipkin\Propagation\DefaultSamplingFlags;
 use Zipkin\Span as ZipkinSpan;
-use Zipkin\TraceContext;
+use Zipkin\Propagation\TraceContext;
 use ZipkinOpenTracing\Span;
 
 final class SpanTest extends PHPUnit_Framework_TestCase
