@@ -31,19 +31,16 @@ composer require jcchavezs/zipkin-opentracing
 Firstly, we need to setup a tracer:
 
 ```php
-use GuzzleHttp\Client;
 use OpenTracing\GlobalTracer;
 use Psr\Log\NullLogger;
 use Zipkin\Endpoint;
 use Zipkin\Samplers\BinarySampler;
 use Zipkin\TracingBuilder;
-use Zipkin\Reporters\HttpLogging;
+use Zipkin\Reporters\Http;
 
 $endpoint = Endpoint::create('my_service', '127.0.0.1', null, 8081);
-$client = new Client();
-$logger = new NullLogger();
-
-$reporter = new HttpLogging($client, $logger);
+$clientFactory = CurlFactory::create();
+$reporter = new Zipkin\Reporters\Http($clientFactory, $logger);
 $sampler = BinarySampler::createAsAlwaysSample();
 $tracing = TracingBuilder::create()
 	->havingLocalEndpoint($endpoint)
