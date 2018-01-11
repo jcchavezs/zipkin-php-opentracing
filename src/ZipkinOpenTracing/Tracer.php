@@ -7,6 +7,7 @@ use OpenTracing\Formats;
 use OpenTracing\SpanContext;
 use OpenTracing\SpanOptions;
 use OpenTracing\Tracer as OTTracer;
+use UnexpectedValueException;
 use Zipkin\Propagation\Getter;
 use Zipkin\Propagation\Map;
 use Zipkin\Propagation\Setter;
@@ -66,7 +67,7 @@ final class Tracer implements OTTracer
     /**
      * @inheritdoc
      * @throws \InvalidArgumentException
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      */
     public function inject(SpanContext $spanContext, $format, &$carrier)
     {
@@ -84,7 +85,7 @@ final class Tracer implements OTTracer
 
     /**
      * @inheritdoc
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      */
     public function extract($format, $carrier)
     {
@@ -104,7 +105,7 @@ final class Tracer implements OTTracer
     /**
      * @param string $format
      * @return Setter
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      */
     private function getSetterByFormat($format)
     {
@@ -112,13 +113,13 @@ final class Tracer implements OTTracer
             return new Map();
         }
 
-        throw new \UnexpectedValueException(sprintf('Format %s not implemented', $format));
+        throw new UnexpectedValueException(sprintf('Format %s not implemented', $format));
     }
 
     /**
      * @param string $format
      * @return Getter
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      */
     private function getGetterByFormat($format)
     {
@@ -126,6 +127,6 @@ final class Tracer implements OTTracer
             return new Map();
         }
 
-        throw new \UnexpectedValueException(sprintf('Format %s not implemented', $format));
+        throw new UnexpectedValueException(sprintf('Format %s not implemented', $format));
     }
 }
