@@ -4,8 +4,8 @@ namespace ZipkinOpenTracing;
 
 use OpenTracing\Ext\Tags;
 use OpenTracing\Span as OTSpan;
-use Zipkin\Span as ZipkinSpan;
 use OpenTracing\SpanContext;
+use Zipkin\Span as ZipkinSpan;
 use Zipkin\Timestamp;
 use ZipkinOpenTracing\SpanContext as ZipkinOpenTracingContext;
 

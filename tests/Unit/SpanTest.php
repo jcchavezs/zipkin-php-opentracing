@@ -1,6 +1,6 @@
 <?php
 
-namespace ZipkinOpenTracingTests\Unit;
+namespace ZipkinOpenTracing\Tests\Unit;
 
 use PHPUnit_Framework_TestCase;
 use Zipkin\Propagation\DefaultSamplingFlags;
