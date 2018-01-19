@@ -4,26 +4,29 @@ namespace ZipkinOpenTracing;
 
 use ArrayIterator;
 use OpenTracing\SpanContext as OTSpanContext;
-use Zipkin\Propagation\TraceContext;
+use Zipkin\Propagation\SamplingFlags;
 
-final class SpanContext implements OTSpanContext, WrappedTraceContext
+/**
+ * Used to wrap SamplingFlags coming from extractor
+ */
+final class PartialSpanContext implements OTSpanContext, WrappedTraceContext
 {
-    private $traceContext;
+    private $samplingFlags;
     private $baggageItems;
 
-    private function __construct(TraceContext $traceContext, array $baggageItems = [])
+    private function __construct(SamplingFlags $samplingFlags, array $baggageItems = [])
     {
-        $this->traceContext = $traceContext;
+        $this->samplingFlags = $samplingFlags;
         $this->baggageItems = $baggageItems;
     }
 
     /**
-     * @param TraceContext $traceContext
-     * @return SpanContext
+     * @param SamplingFlags $samplingFlags
+     * @return PartialSpanContext
      */
-    public static function fromTraceContext(TraceContext $traceContext)
+    public static function fromSamplingFlags(SamplingFlags $samplingFlags)
     {
-        return new self($traceContext);
+        return new self($samplingFlags);
     }
 
     /**
@@ -47,7 +50,7 @@ final class SpanContext implements OTSpanContext, WrappedTraceContext
      */
     public function withBaggageItem($key, $value)
     {
-        return new self($this->traceContext, [$key => $value] + $this->baggageItems);
+        return new self($this->samplingFlags, [$key => $value] + $this->baggageItems);
     }
 
     /**
@@ -55,6 +58,6 @@ final class SpanContext implements OTSpanContext, WrappedTraceContext
      */
     public function getContext()
     {
-        return $this->traceContext;
+        return $this->samplingFlags;
     }
 }

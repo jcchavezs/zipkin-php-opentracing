@@ -4,18 +4,21 @@ namespace ZipkinOpenTracing;
 
 use InvalidArgumentException;
 use OpenTracing\Formats;
-use OpenTracing\SpanContext;
+use OpenTracing\SpanContext as OTSpanContext;
 use OpenTracing\SpanOptions;
 use OpenTracing\Tracer as OTTracer;
 use UnexpectedValueException;
 use Zipkin\Propagation\Getter;
 use Zipkin\Propagation\Map;
+use Zipkin\Propagation\SamplingFlags;
 use Zipkin\Propagation\Setter;
 use Zipkin\Propagation\Propagation as ZipkinPropagation;
+use Zipkin\Propagation\TraceContext;
 use Zipkin\Timestamp;
 use Zipkin\Tracing as ZipkinTracing;
 use Zipkin\Tracer as ZipkinTracer;
 use ZipkinOpenTracing\SpanContext as ZipkinOpenTracingContext;
+use ZipkinOpenTracing\PartialSpanContext as ZipkinOpenPartialTracingContext;
 use ZipkinOpenTracing\Span as ZipkinOpenTracingSpan;
 
 final class Tracer implements OTTracer
@@ -69,7 +72,7 @@ final class Tracer implements OTTracer
      * @throws \InvalidArgumentException
      * @throws UnexpectedValueException
      */
-    public function inject(SpanContext $spanContext, $format, &$carrier)
+    public function inject(OTSpanContext $spanContext, $format, &$carrier)
     {
         if ($spanContext instanceof ZipkinOpenTracingContext) {
             $setter = $this->getSetterByFormat($format);
@@ -78,8 +81,8 @@ final class Tracer implements OTTracer
         }
 
         throw new InvalidArgumentException(sprintf(
-            'Invalid SpanContext. Expected ZipkinOpenTracing\SpanContext, got %s.',
-            get_class($spanContext)
+            'Invalid span context. Expected ZipkinOpenTracing\SpanContext, got %s.',
+            is_object($spanContext) ? get_class($spanContext) : gettype($spanContext)
         ));
     }
 
@@ -91,7 +94,20 @@ final class Tracer implements OTTracer
     {
         $getter = $this->getGetterByFormat($format);
         $extractor =  $this->propagation->getExtractor($getter);
-        return ZipkinOpenTracingContext::fromTraceContext($extractor($carrier));
+        $extractedContext = $extractor($carrier);
+
+        if ($extractedContext instanceof TraceContext) {
+            return ZipkinOpenTracingContext::fromTraceContext($extractedContext);
+        }
+
+        if ($extractedContext instanceof SamplingFlags) {
+            return ZipkinOpenPartialTracingContext::fromSamplingFlags($extractedContext);
+        }
+
+        throw new UnexpectedValueException(sprintf(
+            'Invalid extracted context. Expected Zipkin\SamplingFlags, got %s',
+            is_object($extractedContext) ? get_class($extractedContext) : gettype($extractedContext)
+        ));
     }
 
     /**
