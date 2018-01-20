@@ -11,7 +11,14 @@ use Zipkin\Propagation\SamplingFlags;
  */
 final class PartialSpanContext implements OTSpanContext, WrappedTraceContext
 {
+    /**
+     * @var SamplingFlags
+     */
     private $samplingFlags;
+
+    /**
+     * @var array
+     */
     private $baggageItems;
 
     private function __construct(SamplingFlags $samplingFlags, array $baggageItems = [])

@@ -20,6 +20,7 @@ use Zipkin\Tracer as ZipkinTracer;
 use ZipkinOpenTracing\SpanContext as ZipkinOpenTracingContext;
 use ZipkinOpenTracing\PartialSpanContext as ZipkinOpenPartialTracingContext;
 use ZipkinOpenTracing\Span as ZipkinOpenTracingSpan;
+use ZipkinOpenTracing\NoopSpan as ZipkinOpenTracingNoopSpan;
 
 final class Tracer implements OTTracer
 {
@@ -58,7 +59,12 @@ final class Tracer implements OTTracer
             $span = $this->tracer->newChild($context->getContext());
         }
 
+        if ($span->isNoop()) {
+            return ZipkinOpenTracingNoopSpan::create();
+        }
+
         $span->start($options->getStartTime() ?: Timestamp\now());
+        $span->setName($operationName);
 
         foreach ($options->getTags() as $key => $value) {
             $span->tag($key, $value);
