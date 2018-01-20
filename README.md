@@ -1,12 +1,12 @@
-# Zipkin OpenTracing PHP
+# Zipkin PHP OpenTracing
 
-[![Travis CI](https://travis-ci.org/jcchavezs/zipkin-opentracing-php.svg?branch=master)](https://travis-ci.org/jcchavezs/zipkin-opentracing-php)
+[![Travis CI](https://travis-ci.org/jcchavezs/zipkin-php-opentracing.svg?branch=master)](https://travis-ci.org/jcchavezs/zipkin-opentracing-php)
 [![OpenTracing Badge](https://img.shields.io/badge/OpenTracing-enabled-blue.svg)](http://opentracing.io)
 [![Total Downloads](https://poser.pugx.org/jcchavezs/zipkin-opentracing/downloads)](https://packagist.org/packages/jcchavezs/zipkin-opentracing)
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg)](https://php.net/)
-[![License](https://img.shields.io/packagist/l/jcchavezs/zipkin-opentracing.svg)](https://github.com/jcchavezs/zipkin-opentracing-php/blob/master/LICENSE)
+[![License](https://img.shields.io/packagist/l/jcchavezs/zipkin-opentracing.svg)](https://github.com/jcchavezs/zipkin-php-opentracing/blob/master/LICENSE)
 
-OpenTracingTracer implementation for [Zipkin](http://zipkin.io) in PHP.
+[Zipkin](http://zipkin.io) implementation for OpenTracingTracer in PHP.
 
 This library allows OpenTracing API consumers to use Zipkin as their tracing backend.
 For details on how to work with spans and traces we suggest looking at the documentation
