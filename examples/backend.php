@@ -3,7 +3,7 @@
 use OpenTracing\Formats;
 
 require_once __DIR__ . '/functions.php';
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 $tracer = build_tracer('backend', '127.0.0.2');
 

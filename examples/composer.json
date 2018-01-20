@@ -3,15 +3,13 @@
     "require": {
         "monolog/monolog": "^1.23",
         "guzzlehttp/guzzle": "^6.3",
-        "jcchavezs/zipkin": "dev-master",
-        "opentracing/opentracing": "dev-master",
         "symfony/http-foundation": "3.4.x-dev",
         "jcchavezs/zipkin-opentracing": "*"
     },
     "repositories": [
         {
             "type": "path",
-            "url": "../."
+            "url": "./.lib"
         }
     ],
     "minimum-stability": "dev",
@@ -22,8 +20,15 @@
         }
     ],
     "scripts": {
-        "run-frontend": "php -S 'localhost:8001' frontend.php",
-        "run-backend": "php -S 'localhost:8002' backend.php",
+        "pre-install-cmd": [
+            "@sync"
+        ],
+        "pre-update-cmd": [
+            "@sync"
+        ],
+        "sync": "rsync -av ../. ./.lib --exclude examples --exclude vendor --exclude \".*\" --exclude composer.lock",
+        "run-frontend": "php -S 'localhost:8081' frontend.php",
+        "run-backend": "php -S 'localhost:9000' backend.php",
         "run-zipkin": "docker run -p 9411:9411 -d openzipkin/zipkin"
     }
 }

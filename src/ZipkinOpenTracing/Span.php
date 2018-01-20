@@ -26,10 +26,6 @@ final class Span implements OTSpan
      */
     private $context;
 
-    /**
-     * @param string $operationName
-     * @param ZipkinSpan $span
-     */
     private function __construct($operationName, ZipkinSpan $span)
     {
         $this->operationName = $operationName;
@@ -87,7 +83,7 @@ final class Span implements OTSpan
     {
         foreach ($tags as $key => $value) {
             if ($key === Tags\SPAN_KIND) {
-                $this->span->setKind($key);
+                $this->span->setKind($value);
             } else {
                 $this->span->tag($key, $value);
             }
