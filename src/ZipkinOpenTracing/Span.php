@@ -83,7 +83,7 @@ final class Span implements OTSpan
     {
         foreach ($tags as $key => $value) {
             if ($key === Tags\SPAN_KIND) {
-                $this->span->setKind($value);
+                $this->span->setKind(strtoupper($value));
             } else {
                 $this->span->tag($key, $value);
             }

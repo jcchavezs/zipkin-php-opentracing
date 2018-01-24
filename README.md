@@ -1,6 +1,6 @@
 # Zipkin PHP OpenTracing
 
-[![Travis CI](https://travis-ci.org/jcchavezs/zipkin-php-opentracing.svg?branch=master)](https://travis-ci.org/jcchavezs/zipkin-opentracing-php)
+[![Travis CI](https://travis-ci.org/jcchavezs/zipkin-php-opentracing.svg?branch=master)](https://travis-ci.org/jcchavezs/zipkin-php-opentracing)
 [![OpenTracing Badge](https://img.shields.io/badge/OpenTracing-enabled-blue.svg)](http://opentracing.io)
 [![Total Downloads](https://poser.pugx.org/jcchavezs/zipkin-opentracing/downloads)](https://packagist.org/packages/jcchavezs/zipkin-opentracing)
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg)](https://php.net/)
@@ -18,7 +18,7 @@ and README from the [OpenTracing API](https://github.com/opentracing/opentracing
 
 In order to understand OpenTracing API, one must first be familiar with the [OpenTracing project](http://opentracing.io) and [terminology](http://opentracing.io/spec/) more generally.
 
-To understand how Zipkin work, you can look at [Zipkin Architecture](http://zipkin.io/pages/architecture.html) and [Zipkin Api](https://github.com/jcchavezs/zipkin-php) documentation.
+To understand how Zipkin works, you can look at [Zipkin Architecture](http://zipkin.io/pages/architecture.html) and [Zipkin PHP](https://github.com/jcchavezs/zipkin-php) documentation.
 
 ### Installation
 

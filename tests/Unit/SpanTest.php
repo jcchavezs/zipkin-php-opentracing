@@ -30,7 +30,7 @@ final class SpanTest extends PHPUnit_Framework_TestCase
 
         $zipkinSpan = $this->prophesize(ZipkinSpan::class);
         $zipkinSpan->getContext()->willReturn($context);
-        $zipkinSpan->setKind(self::TEST_SPAN_KIND)->shouldBeCalled();
+        $zipkinSpan->setKind(strtoupper(self::TEST_SPAN_KIND))->shouldBeCalled();
         $zipkinSpan->tag(self::TEST_TAG_KEY, self::TEST_TAG_VALUE)->shouldBeCalled();
 
         $span = Span::create(self::OPERATION_NAME, $zipkinSpan->reveal());
