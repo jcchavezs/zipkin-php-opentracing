@@ -2,28 +2,25 @@
 
 namespace ZipkinOpenTracing;
 
-use InvalidArgumentException;
-use OpenTracing\Ext\Tags;
 use OpenTracing\Formats;
-use OpenTracing\Span as OTSpan;
+use OpenTracing\Reference;
 use OpenTracing\SpanContext as OTSpanContext;
 use OpenTracing\SpanOptions;
 use OpenTracing\Tracer as OTTracer;
-use UnexpectedValueException;
 use Zipkin\Endpoint;
 use Zipkin\Propagation\Getter;
 use Zipkin\Propagation\Map;
+use Zipkin\Propagation\Propagation as ZipkinPropagation;
 use Zipkin\Propagation\SamplingFlags;
 use Zipkin\Propagation\Setter;
-use Zipkin\Propagation\Propagation as ZipkinPropagation;
 use Zipkin\Propagation\TraceContext;
 use Zipkin\Timestamp;
-use Zipkin\Tracing as ZipkinTracing;
 use Zipkin\Tracer as ZipkinTracer;
-use ZipkinOpenTracing\SpanContext as ZipkinOpenTracingContext;
+use Zipkin\Tracing as ZipkinTracing;
 use ZipkinOpenTracing\PartialSpanContext as ZipkinOpenPartialTracingContext;
 use ZipkinOpenTracing\Span as ZipkinOpenTracingSpan;
 use ZipkinOpenTracing\NoopSpan as ZipkinOpenTracingNoopSpan;
+use ZipkinOpenTracing\SpanContext as ZipkinOpenTracingContext;
 
 final class Tracer implements OTTracer
 {
@@ -41,6 +38,59 @@ final class Tracer implements OTTracer
     {
         $this->tracer = $tracing->getTracer();
         $this->propagation = $tracing->getPropagation();
+        $this->scopeManager = new ScopeManager();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getScopeManager()
+    {
+        return $this->scopeManager;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getActiveSpan()
+    {
+        $activeScope = $this->scopeManager->getActiveScope();
+        if ($activeScope === null) {
+            return null;
+        }
+
+        return $activeScope->getSpan();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function startActiveSpan($operationName, $options = [])
+    {
+        if (!$options instanceof SpanOptions) {
+            $options = SpanOptions::create($options);
+        }
+
+        $child = $this->findChildInReferences($options->getReferences());
+        if ($child === null && $this->getActiveSpan() !== null) {
+            $child = $this->getActiveSpan()->getContext();
+        }
+
+        $options = SpanOptions::create(array_merge([
+            'tags' => $options->getTags(),
+            'start_time' => $options->getStartTime(),
+            'close_span_on_finish' => $options->getCloseSpanOnFinish(),
+        ], ($child ? ['child_of' => $child] : [])));
+
+        $span = $this->startSpan($operationName, $options);
+        $scope = $this->scopeManager->activate($span);
+
+        if ($span instanceof ZipkinOpenTracingSpan) {
+            $span->setScope($scope);
+            $span->shouldCloseScopeOnFinish($options->getCloseSpanOnFinish());
+        }
+
+        return $span;
     }
 
     /**
@@ -57,10 +107,16 @@ final class Tracer implements OTTracer
             $span = $this->tracer->newTrace();
         } else {
             /**
-             * @var ZipkinOpenTracingContext $context
+             * @var ZipkinOpenTracingContext $refContext
              */
-            $context = $options->getReferences()[0]->getContext();
-            $span = $this->tracer->newChild($context->getContext());
+            $refContext = $options->getReferences()[0]->getContext();
+            $context = $refContext->getContext();
+
+            if ($context instanceof TraceContext) {
+                $span = $this->tracer->newChild($context);
+            } else {
+                $span = $this->tracer->nextSpan($context);
+            }
         }
 
         if ($span->isNoop()) {
@@ -87,7 +143,7 @@ final class Tracer implements OTTracer
     /**
      * @inheritdoc
      * @throws \InvalidArgumentException
-     * @throws UnexpectedValueException
+     * @throws \UnexpectedValueException
      */
     public function inject(OTSpanContext $spanContext, $format, &$carrier)
     {
@@ -97,7 +153,7 @@ final class Tracer implements OTTracer
             return $injector($spanContext->getContext(), $carrier);
         }
 
-        throw new InvalidArgumentException(sprintf(
+        throw new \InvalidArgumentException(sprintf(
             'Invalid span context. Expected ZipkinOpenTracing\SpanContext, got %s.',
             is_object($spanContext) ? get_class($spanContext) : gettype($spanContext)
         ));
@@ -105,7 +161,7 @@ final class Tracer implements OTTracer
 
     /**
      * @inheritdoc
-     * @throws UnexpectedValueException
+     * @throws \UnexpectedValueException
      */
     public function extract($format, $carrier)
     {
@@ -121,7 +177,7 @@ final class Tracer implements OTTracer
             return ZipkinOpenPartialTracingContext::fromSamplingFlags($extractedContext);
         }
 
-        throw new UnexpectedValueException(sprintf(
+        throw new \UnexpectedValueException(sprintf(
             'Invalid extracted context. Expected Zipkin\SamplingFlags, got %s',
             is_object($extractedContext) ? get_class($extractedContext) : gettype($extractedContext)
         ));
@@ -138,7 +194,7 @@ final class Tracer implements OTTracer
     /**
      * @param string $format
      * @return Setter
-     * @throws UnexpectedValueException
+     * @throws \UnexpectedValueException
      */
     private function getSetterByFormat($format)
     {
@@ -146,13 +202,13 @@ final class Tracer implements OTTracer
             return new Map();
         }
 
-        throw new UnexpectedValueException(sprintf('Format %s not implemented', $format));
+        throw new \UnexpectedValueException(sprintf('Format %s not implemented', $format));
     }
 
     /**
      * @param string $format
      * @return Getter
-     * @throws UnexpectedValueException
+     * @throws \UnexpectedValueException
      */
     private function getGetterByFormat($format)
     {
@@ -160,6 +216,17 @@ final class Tracer implements OTTracer
             return new Map();
         }
 
-        throw new UnexpectedValueException(sprintf('Format %s not implemented', $format));
+        throw new \UnexpectedValueException(sprintf('Format %s not implemented', $format));
+    }
+
+    private function findChildInReferences(array $references)
+    {
+        foreach ($references as $ref) {
+            if ($ref->isType(Reference::CHILD_OF)) {
+                return $ref->getContext();
+            }
+        }
+
+        return null;
     }
 }

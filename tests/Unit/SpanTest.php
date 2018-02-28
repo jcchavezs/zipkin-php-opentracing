@@ -2,7 +2,7 @@
 
 namespace ZipkinOpenTracing\Tests\Unit;
 
-use OpenTracing\Ext\Tags;
+use OpenTracing\Tags;
 use PHPUnit_Framework_TestCase;
 use Prophecy\Argument;
 use Zipkin\Propagation\DefaultSamplingFlags;

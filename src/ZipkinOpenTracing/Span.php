@@ -2,7 +2,7 @@
 
 namespace ZipkinOpenTracing;
 
-use OpenTracing\Ext\Tags;
+use OpenTracing\Tags;
 use OpenTracing\Span as OTSpan;
 use OpenTracing\SpanContext;
 use Zipkin\Endpoint;
@@ -36,6 +36,16 @@ final class Span implements OTSpan
      * @var array;
      */
     private $remoteEndpointArgs;
+
+    /**
+     * @var Scope
+     */
+    private $scope;
+
+    /**
+     * @var bool
+     */
+    private $shouldCloseScopeOnFinish = true;
 
     private function __construct($operationName, ZipkinSpan $span, array $remoteEndpointArgs = null)
     {
@@ -84,6 +94,10 @@ final class Span implements OTSpan
         }
 
         $this->span->finish($finishTime ?: Timestamp\now());
+
+        if ($this->scope) {
+            $this->scope->close();
+        }
     }
 
     /**
@@ -158,5 +172,15 @@ final class Span implements OTSpan
     public function getBaggageItem($key)
     {
         return $this->context->getBaggageItem($key);
+    }
+
+    public function setScope(Scope $scope)
+    {
+        $this->scope = $scope;
+    }
+
+    public function shouldCloseScopeOnFinish($flag = true)
+    {
+        $this->shouldCloseScopeOnFinish = $flag;
     }
 }
