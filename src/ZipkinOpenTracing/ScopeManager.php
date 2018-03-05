@@ -5,7 +5,7 @@ namespace ZipkinOpenTracing;
 use OpenTracing\ScopeManager as OTScopeManager;
 use OpenTracing\Span as OTSpan;
 
-class ScopeManager implements OTScopeManager
+final class ScopeManager implements OTScopeManager
 {
     /**
      * @var Scope
@@ -32,7 +32,7 @@ class ScopeManager implements OTScopeManager
 
     public function getScope(OTSpan $span)
     {
-        throw new \RuntimeException('Not implemented');
+        throw new \BadFunctionCallException('Not implemented');
     }
 
     public function setActiveScope(Scope $scope = null)

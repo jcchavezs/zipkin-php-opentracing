@@ -4,9 +4,19 @@ namespace ZipkinOpenTracing;
 
 use OpenTracing\Scope as OTScope;
 
-class Scope implements OTScope
+final class Scope implements OTScope
 {
-    public function __construct($scopeManager, $wrapped)
+    /**
+     * @var ScopeManager
+     */
+    private $scopeManger;
+
+    /**
+     * @var OTScope
+     */
+    private $wrapped;
+
+    public function __construct(ScopeManager $scopeManager, OTScope $wrapped)
     {
         $this->scopeManager = $scopeManager;
         $this->wrapped = $wrapped;
@@ -21,6 +31,9 @@ class Scope implements OTScope
         return $this->wrapped;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function close()
     {
         $this->scopeManager->setActiveScope($this->toRestore);
