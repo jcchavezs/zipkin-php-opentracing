@@ -3,16 +3,29 @@
 namespace ZipkinOpenTracing;
 
 use OpenTracing\Span as OTSpan;
-use OpenTracing\SpanContext;
+use OpenTracing\SpanContext as OTSpanContext;
+use Zipkin\Span as ZipkinSpan;
+use ZipkinOpenTracing\SpanContext as ZipkinOpenTracingContext;
 
 final class NoopSpan implements OTSpan
 {
     /**
+     * @var OTSpanContext|SpanContext
+     */
+    private $context;
+
+    private function __construct(ZipkinSpan $span)
+    {
+        $this->context = ZipkinOpenTracingContext::fromTraceContext($span->getContext());
+    }
+
+    /**
+     * @param ZipkinSpan $span
      * @return NoopSpan
      */
-    public static function create()
+    public static function create(ZipkinSpan $span)
     {
-        return new self();
+        return new self($span);
     }
 
     /**
@@ -32,7 +45,7 @@ final class NoopSpan implements OTSpan
      */
     public function getContext()
     {
-        return NoopSpanContext::create();
+        return NoopSpanContext::create($this->context->getContext());
     }
 
     /**

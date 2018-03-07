@@ -4,6 +4,7 @@ namespace ZipkinOpenTracing;
 
 use InvalidArgumentException;
 use OpenTracing\Formats;
+use OpenTracing\Span as OTSpan;
 use OpenTracing\SpanContext as OTSpanContext;
 use OpenTracing\SpanOptions;
 use OpenTracing\Tracer as OTTracer;
@@ -42,6 +43,7 @@ final class Tracer implements OTTracer
 
     /**
      * @inheritdoc
+     * @return OTSpan|Span
      */
     public function startSpan($operationName, $options = [])
     {
@@ -60,7 +62,7 @@ final class Tracer implements OTTracer
         }
 
         if ($span->isNoop()) {
-            return ZipkinOpenTracingNoopSpan::create();
+            return ZipkinOpenTracingNoopSpan::create($span);
         }
 
         $span->start($options->getStartTime() ?: Timestamp\now());

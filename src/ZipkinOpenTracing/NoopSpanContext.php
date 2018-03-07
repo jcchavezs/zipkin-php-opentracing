@@ -3,14 +3,24 @@
 namespace ZipkinOpenTracing;
 
 use ArrayIterator;
-use Zipkin\Propagation\DefaultSamplingFlags;
 use OpenTracing\SpanContext as OTSpanContext;
+use Zipkin\Propagation\TraceContext;
 
 class NoopSpanContext implements OTSpanContext, WrappedTraceContext
 {
-    public static function create()
+    /**
+     * @var TraceContext
+     */
+    private $context;
+
+    private function __construct(TraceContext $context)
     {
-        return new self();
+        $this->context = $context;
+    }
+
+    public static function create(TraceContext $context)
+    {
+        return new self($context);
     }
 
     /**
@@ -18,7 +28,7 @@ class NoopSpanContext implements OTSpanContext, WrappedTraceContext
      */
     public function getContext()
     {
-        return DefaultSamplingFlags::createAsEmpty();
+        return $this->context;
     }
 
     /**
