@@ -5,6 +5,7 @@ namespace ZipkinOpenTracing;
 use OpenTracing\Ext\Tags;
 use OpenTracing\Span as OTSpan;
 use OpenTracing\SpanContext;
+use Zipkin\Endpoint;
 use Zipkin\Span as ZipkinSpan;
 use Zipkin\Timestamp;
 use ZipkinOpenTracing\SpanContext as ZipkinOpenTracingContext;
@@ -26,21 +27,35 @@ final class Span implements OTSpan
      */
     private $context;
 
-    private function __construct($operationName, ZipkinSpan $span)
+    /**
+     * @var bool
+     */
+    private $hasRemoteEndpoint;
+
+    /**
+     * @var array;
+     */
+    private $remoteEndpointArgs;
+
+    private function __construct($operationName, ZipkinSpan $span, array $remoteEndpointArgs = null)
     {
         $this->operationName = $operationName;
         $this->span = $span;
         $this->context = ZipkinOpenTracingContext::fromTraceContext($span->getContext());
+        $this->hasRemoteEndpoint = $remoteEndpointArgs === null;
+        $this->remoteEndpointArgs = $this->hasRemoteEndpoint ?
+            $remoteEndpointArgs : [Endpoint::DEFAULT_SERVICE_NAME, null, null, null];
     }
 
     /**
      * @param string $operationName
      * @param ZipkinSpan $span
+     * @param array|null $remoteEndpointArgs
      * @return Span
      */
-    public static function create($operationName, ZipkinSpan $span)
+    public static function create($operationName, ZipkinSpan $span, array $remoteEndpointArgs = null)
     {
-        return new self($operationName, $span);
+        return new self($operationName, $span, $remoteEndpointArgs);
     }
 
     /**
@@ -64,6 +79,10 @@ final class Span implements OTSpan
      */
     public function finish($finishTime = null, array $logRecords = [])
     {
+        if ($this->hasRemoteEndpoint) {
+            $this->span->setRemoteEndpoint(Endpoint::create(...$this->remoteEndpointArgs));
+        }
+
         $this->span->finish($finishTime ?: Timestamp\now());
     }
 
@@ -84,9 +103,34 @@ final class Span implements OTSpan
         foreach ($tags as $key => $value) {
             if ($key === Tags\SPAN_KIND) {
                 $this->span->setKind(strtoupper($value));
-            } else {
-                $this->span->tag($key, $value);
+                continue;
             }
+
+            if ($key === Tags\PEER_SERVICE) {
+                $this->hasRemoteEndpoint = true;
+                $this->remoteEndpointArgs[0] = $value;
+                continue;
+            }
+
+            if ($key === Tags\PEER_HOST_IPV4) {
+                $this->hasRemoteEndpoint = true;
+                $this->remoteEndpointArgs[1] = $value;
+                continue;
+            }
+
+            if ($key === Tags\PEER_HOST_IPV6) {
+                $this->hasRemoteEndpoint = true;
+                $this->remoteEndpointArgs[2] = $value;
+                continue;
+            }
+
+            if ($key === Tags\PEER_PORT) {
+                $this->hasRemoteEndpoint = true;
+                $this->remoteEndpointArgs[3] = $value;
+                continue;
+            }
+
+            $this->span->tag($key, $value);
         }
     }
 

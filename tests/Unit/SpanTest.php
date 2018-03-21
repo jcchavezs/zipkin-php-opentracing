@@ -2,7 +2,9 @@
 
 namespace ZipkinOpenTracing\Tests\Unit;
 
+use OpenTracing\Ext\Tags;
 use PHPUnit_Framework_TestCase;
+use Prophecy\Argument;
 use Zipkin\Propagation\DefaultSamplingFlags;
 use Zipkin\Span as ZipkinSpan;
 use Zipkin\Propagation\TraceContext;
@@ -11,9 +13,13 @@ use ZipkinOpenTracing\Span;
 final class SpanTest extends PHPUnit_Framework_TestCase
 {
     const OPERATION_NAME = 'test_name';
-    const TEST_SPAN_KIND = 'kind';
-    const TEST_TAG_KEY = 'test_key';
-    const TEST_TAG_VALUE = 'test_value';
+    const SPAN_KIND = 'kind';
+    const TAG_KEY = 'test_key';
+    const TAG_VALUE = 'test_value';
+    const PEER_SERVICE_VALUE = 'test_service';
+    const PEER_HOST_IPV4_VALUE = '127.0.0.2';
+    const PEER_HOST_IPV6_VALUE = null;
+    const PEER_PORT_VALUE = 12345;
 
     public function testASpanIsCreatedAndHasTheExpectedValues()
     {
@@ -30,13 +36,21 @@ final class SpanTest extends PHPUnit_Framework_TestCase
 
         $zipkinSpan = $this->prophesize(ZipkinSpan::class);
         $zipkinSpan->getContext()->willReturn($context);
-        $zipkinSpan->setKind(strtoupper(self::TEST_SPAN_KIND))->shouldBeCalled();
-        $zipkinSpan->tag(self::TEST_TAG_KEY, self::TEST_TAG_VALUE)->shouldBeCalled();
+        $zipkinSpan->setKind(strtoupper(self::SPAN_KIND))->shouldBeCalled();
+        $zipkinSpan->tag(self::TAG_KEY, self::TAG_VALUE)->shouldBeCalled();
+        $zipkinSpan->tag(Tags\PEER_SERVICE, self::PEER_SERVICE_VALUE)->shouldNotBeCalled();
+        $zipkinSpan->tag(Tags\PEER_HOST_IPV4, self::PEER_HOST_IPV4_VALUE)->shouldNotBeCalled();
+        $zipkinSpan->tag(Tags\PEER_HOST_IPV6, self::PEER_HOST_IPV6_VALUE)->shouldNotBeCalled();
+        $zipkinSpan->tag(Tags\PEER_PORT, self::PEER_PORT_VALUE)->shouldNotBeCalled();
 
         $span = Span::create(self::OPERATION_NAME, $zipkinSpan->reveal());
         $span->setTags([
-            'span.kind' => self::TEST_SPAN_KIND,
-            self::TEST_TAG_KEY => self::TEST_TAG_VALUE
+            'span.kind' => self::SPAN_KIND,
+            self::TAG_KEY => self::TAG_VALUE,
+            Tags\PEER_SERVICE => self::PEER_SERVICE_VALUE,
+            Tags\PEER_HOST_IPV4 => self::PEER_HOST_IPV4_VALUE,
+            Tags\PEER_HOST_IPV6 => self::PEER_HOST_IPV6_VALUE,
+            Tags\PEER_PORT => self::PEER_PORT_VALUE,
         ]);
     }
 }
