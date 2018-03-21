@@ -88,7 +88,6 @@ final class TracerTest extends PHPUnit_Framework_TestCase
 
     public function testStartSpanWithParentSuccess()
     {
-
         $tracing = TracingBuilder::create()->build();
         $tracer = new Tracer($tracing);
         $parentSpan = $tracer->startSpan(self::OPERATION_NAME);

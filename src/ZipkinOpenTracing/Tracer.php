@@ -3,12 +3,14 @@
 namespace ZipkinOpenTracing;
 
 use InvalidArgumentException;
+use OpenTracing\Ext\Tags;
 use OpenTracing\Formats;
 use OpenTracing\Span as OTSpan;
 use OpenTracing\SpanContext as OTSpanContext;
 use OpenTracing\SpanOptions;
 use OpenTracing\Tracer as OTTracer;
 use UnexpectedValueException;
+use Zipkin\Endpoint;
 use Zipkin\Propagation\Getter;
 use Zipkin\Propagation\Map;
 use Zipkin\Propagation\SamplingFlags;
@@ -68,11 +70,18 @@ final class Tracer implements OTTracer
         $span->start($options->getStartTime() ?: Timestamp\now());
         $span->setName($operationName);
 
+        $hasRemoteEndpoint = false;
+        $remoteEndpointArgs = [Endpoint::DEFAULT_SERVICE_NAME, null, null, null];
+
         foreach ($options->getTags() as $key => $value) {
             $span->tag($key, $value);
         }
 
-        return ZipkinOpenTracingSpan::create($operationName, $span);
+        if ($hasRemoteEndpoint) {
+            $span->setRemoteEndpoint(Endpoint::create(...$remoteEndpointArgs));
+        }
+
+        return ZipkinOpenTracingSpan::create($operationName, $span, $hasRemoteEndpoint ? $remoteEndpointArgs : null);
     }
 
     /**
