@@ -26,7 +26,7 @@ To understand how Zipkin works, you can look at [Zipkin Architecture](http://zip
 composer require jcchavezs/zipkin-opentracing
 ```
 
-### Setup
+### Usage
 
 Firstly, we need to setup a tracer:
 
@@ -49,5 +49,50 @@ $tracing = TracingBuilder::create()
 
 $zipkinTrcer = new ZipkinOpenTracing\Tracer($tracing);
 
-GlobalTracer::set($tracer);
+GlobalTracer::set($tracer); // optional
+```
+
+### Creating Spans
+
+- [Starting a root span](https://github.com/opentracing/opentracing-php#starting-an-empty-trace-by-creating-a-root-span)
+- [Starting a span for a given request](https://github.com/opentracing/opentracing-php#creating-a-span-given-an-existing-request)
+- [Active span and scope manager](https://github.com/opentracing/opentracing-php#active-spans-and-scope-manager)
+	- [Creating a child span assigning parent manually](https://github.com/opentracing/opentracing-php#creating-a-child-span-assigning-parent-manually)
+	- [Creating a child span using automatic active span management](https://github.com/opentracing/opentracing-php#creating-a-child-span-using-automatic-active-span-management)
+- [Using span options](https://github.com/opentracing/opentracing-php#using-span-options)
+
+### Propagation of context
+
+- [Serializing context to the wire](https://github.com/opentracing/opentracing-php#serializing-to-the-wire)
+- [Deserializing context from the wire](https://github.com/opentracing/opentracing-php#deserializing-from-the-wire)
+- [Propagation formats](https://github.com/opentracing/opentracing-php#propagation-formats)
+
+### Flushing Spans to the agent
+
+PHP as a request scoped language has no simple means to pass the collected spans data to a background process without 
+blocking the main request thread/process. It is mandatory to execute the `Tracer::flush()` after the response is served 
+to the client by using [`register_shutdown_function`](http://php.net/manual/en/function.register-shutdown-function.php).
+
+```php
+use OpenTracing\GlobalTracer;
+
+$application->run();
+
+register_shutdown_function(function() {
+    GlobalTracer::get()->flush();
+});
+```
+
+## Contribution
+
+### Run tests
+
+```
+composer test
+```
+
+### Fix lint
+
+```
+composer fix-lint
 ```
