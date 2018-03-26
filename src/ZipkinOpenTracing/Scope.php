@@ -20,7 +20,7 @@ final class Scope implements OTScope
     {
         $this->scopeManager = $scopeManager;
         $this->wrapped = $wrapped;
-        $this->toRestore = $scopeManager->getActiveScope();
+        $this->toRestore = $scopeManager->getActive();
     }
 
     /**
@@ -36,6 +36,6 @@ final class Scope implements OTScope
      */
     public function close()
     {
-        $this->scopeManager->setActiveScope($this->toRestore);
+        $this->scopeManager->setActive($this->toRestore);
     }
 }

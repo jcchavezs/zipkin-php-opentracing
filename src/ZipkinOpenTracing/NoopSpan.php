@@ -82,9 +82,10 @@ final class NoopSpan implements OTSpan
      *
      * If the span is already finished, a warning should be logged.
      *
-     * @param array $tags
+     * @param string $key
+     * @param string $value
      */
-    public function setTags(array $tags)
+    public function setTag($key, $value)
     {
     }
 

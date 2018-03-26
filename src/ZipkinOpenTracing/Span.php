@@ -112,40 +112,38 @@ final class Span implements OTSpan
     /**
      * @inheritdoc
      */
-    public function setTags(array $tags)
+    public function setTag($key, $value)
     {
-        foreach ($tags as $key => $value) {
-            if ($key === Tags\SPAN_KIND) {
-                $this->span->setKind(strtoupper($value));
-                continue;
-            }
-
-            if ($key === Tags\PEER_SERVICE) {
-                $this->hasRemoteEndpoint = true;
-                $this->remoteEndpointArgs[0] = $value;
-                continue;
-            }
-
-            if ($key === Tags\PEER_HOST_IPV4) {
-                $this->hasRemoteEndpoint = true;
-                $this->remoteEndpointArgs[1] = $value;
-                continue;
-            }
-
-            if ($key === Tags\PEER_HOST_IPV6) {
-                $this->hasRemoteEndpoint = true;
-                $this->remoteEndpointArgs[2] = $value;
-                continue;
-            }
-
-            if ($key === Tags\PEER_PORT) {
-                $this->hasRemoteEndpoint = true;
-                $this->remoteEndpointArgs[3] = $value;
-                continue;
-            }
-
-            $this->span->tag($key, $value);
+        if ($key === Tags\SPAN_KIND) {
+            $this->span->setKind(strtoupper($value));
+            return;
         }
+
+        if ($key === Tags\PEER_SERVICE) {
+            $this->hasRemoteEndpoint = true;
+            $this->remoteEndpointArgs[0] = $value;
+            return;
+        }
+
+        if ($key === Tags\PEER_HOST_IPV4) {
+            $this->hasRemoteEndpoint = true;
+            $this->remoteEndpointArgs[1] = $value;
+            return;
+        }
+
+        if ($key === Tags\PEER_HOST_IPV6) {
+            $this->hasRemoteEndpoint = true;
+            $this->remoteEndpointArgs[2] = $value;
+            return;
+        }
+
+        if ($key === Tags\PEER_PORT) {
+            $this->hasRemoteEndpoint = true;
+            $this->remoteEndpointArgs[3] = $value;
+            return;
+        }
+
+        $this->span->tag($key, $value);
     }
 
     /**

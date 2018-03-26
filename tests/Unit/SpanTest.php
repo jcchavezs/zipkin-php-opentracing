@@ -44,13 +44,11 @@ final class SpanTest extends PHPUnit_Framework_TestCase
         $zipkinSpan->tag(Tags\PEER_PORT, self::PEER_PORT_VALUE)->shouldNotBeCalled();
 
         $span = Span::create(self::OPERATION_NAME, $zipkinSpan->reveal());
-        $span->setTags([
-            'span.kind' => self::SPAN_KIND,
-            self::TAG_KEY => self::TAG_VALUE,
-            Tags\PEER_SERVICE => self::PEER_SERVICE_VALUE,
-            Tags\PEER_HOST_IPV4 => self::PEER_HOST_IPV4_VALUE,
-            Tags\PEER_HOST_IPV6 => self::PEER_HOST_IPV6_VALUE,
-            Tags\PEER_PORT => self::PEER_PORT_VALUE,
-        ]);
+        $span->setTag('span.kind', self::SPAN_KIND);
+        $span->setTag(self::TAG_KEY, self::TAG_VALUE);
+        $span->setTag(Tags\PEER_SERVICE, self::PEER_SERVICE_VALUE);
+        $span->setTag(Tags\PEER_HOST_IPV4, self::PEER_HOST_IPV4_VALUE);
+        $span->setTag(Tags\PEER_HOST_IPV6, self::PEER_HOST_IPV6_VALUE);
+        $span->setTag(Tags\PEER_PORT, self::PEER_PORT_VALUE);
     }
 }

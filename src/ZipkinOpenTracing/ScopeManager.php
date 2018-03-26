@@ -10,24 +10,24 @@ final class ScopeManager implements OTScopeManager
     /**
      * @var Scope
      */
-    private $activeScope;
+    private $active;
 
     /**
      * {@inheritdoc}
      */
     public function activate(OTSpan $span)
     {
-        $this->activeScope = new Scope($this, $span);
+        $this->active = new Scope($this, $span);
 
-        return $this->activeScope;
+        return $this->active;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getActiveScope()
+    public function getActive()
     {
-        return $this->activeScope;
+        return $this->active;
     }
 
     public function getScope(OTSpan $span)
@@ -35,8 +35,8 @@ final class ScopeManager implements OTScopeManager
         throw new \BadFunctionCallException('Not implemented');
     }
 
-    public function setActiveScope(Scope $scope = null)
+    public function setActive(Scope $scope = null)
     {
-        $this->activeScope = $scope;
+        $this->active = $scope;
     }
 }
