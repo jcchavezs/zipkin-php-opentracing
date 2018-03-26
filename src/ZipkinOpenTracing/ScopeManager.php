@@ -32,7 +32,13 @@ final class ScopeManager implements OTScopeManager
 
     public function getScope(OTSpan $span)
     {
-        throw new \BadFunctionCallException('Not implemented');
+        for ($scope = $this->active; $scope !== null; $scope = $scope->getToRestore()) {
+            if ($span === $scope->getSpan()) {
+                return $scope;
+            }
+        }
+
+        return null;
     }
 
     public function setActive(Scope $scope = null)

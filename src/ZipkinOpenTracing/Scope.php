@@ -3,6 +3,7 @@
 namespace ZipkinOpenTracing;
 
 use OpenTracing\Scope as OTScope;
+use OpenTracing\Span as OTSpan;
 
 final class Scope implements OTScope
 {
@@ -12,11 +13,11 @@ final class Scope implements OTScope
     private $scopeManger;
 
     /**
-     * @var OTScope
+     * @var OTSpan
      */
     private $wrapped;
 
-    public function __construct(ScopeManager $scopeManager, OTScope $wrapped)
+    public function __construct(ScopeManager $scopeManager, OTSpan $wrapped)
     {
         $this->scopeManager = $scopeManager;
         $this->wrapped = $wrapped;
@@ -37,5 +38,10 @@ final class Scope implements OTScope
     public function close()
     {
         $this->scopeManager->setActive($this->toRestore);
+    }
+
+    public function getToRestore()
+    {
+        return $this->toRestore;
     }
 }
