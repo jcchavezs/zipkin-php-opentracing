@@ -54,7 +54,7 @@ final class Tracer implements OTTracer
      */
     public function getActiveSpan()
     {
-        $activeScope = $this->scopeManager->getActiveScope();
+        $activeScope = $this->scopeManager->getActive();
         if ($activeScope === null) {
             return null;
         }
