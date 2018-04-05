@@ -52,7 +52,7 @@ final class Span implements OTSpan
         $this->operationName = $operationName;
         $this->span = $span;
         $this->context = ZipkinOpenTracingContext::fromTraceContext($span->getContext());
-        $this->hasRemoteEndpoint = $remoteEndpointArgs === null;
+        $this->hasRemoteEndpoint = $remoteEndpointArgs !== null;
         $this->remoteEndpointArgs = $this->hasRemoteEndpoint ?
             $remoteEndpointArgs : [Endpoint::DEFAULT_SERVICE_NAME, null, null, null];
     }
