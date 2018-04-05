@@ -2,7 +2,7 @@
 
 namespace ZipkinOpenTracing;
 
-use OpenTracing\Ext\Tags;
+use OpenTracing\Tags;
 use OpenTracing\Span as OTSpan;
 use OpenTracing\SpanContext;
 use Zipkin\Endpoint;
@@ -37,12 +37,22 @@ final class Span implements OTSpan
      */
     private $remoteEndpointArgs;
 
+    /**
+     * @var Scope
+     */
+    private $scope;
+
+    /**
+     * @var bool
+     */
+    private $shouldCloseScopeOnFinish = true;
+
     private function __construct($operationName, ZipkinSpan $span, array $remoteEndpointArgs = null)
     {
         $this->operationName = $operationName;
         $this->span = $span;
         $this->context = ZipkinOpenTracingContext::fromTraceContext($span->getContext());
-        $this->hasRemoteEndpoint = $remoteEndpointArgs === null;
+        $this->hasRemoteEndpoint = $remoteEndpointArgs !== null;
         $this->remoteEndpointArgs = $this->hasRemoteEndpoint ?
             $remoteEndpointArgs : [Endpoint::DEFAULT_SERVICE_NAME, null, null, null];
     }
@@ -84,6 +94,10 @@ final class Span implements OTSpan
         }
 
         $this->span->finish($finishTime ?: Timestamp\now());
+
+        if ($this->scope) {
+            $this->scope->close();
+        }
     }
 
     /**
@@ -98,40 +112,38 @@ final class Span implements OTSpan
     /**
      * @inheritdoc
      */
-    public function setTags(array $tags)
+    public function setTag($key, $value)
     {
-        foreach ($tags as $key => $value) {
-            if ($key === Tags\SPAN_KIND) {
-                $this->span->setKind(strtoupper($value));
-                continue;
-            }
-
-            if ($key === Tags\PEER_SERVICE) {
-                $this->hasRemoteEndpoint = true;
-                $this->remoteEndpointArgs[0] = $value;
-                continue;
-            }
-
-            if ($key === Tags\PEER_HOST_IPV4) {
-                $this->hasRemoteEndpoint = true;
-                $this->remoteEndpointArgs[1] = $value;
-                continue;
-            }
-
-            if ($key === Tags\PEER_HOST_IPV6) {
-                $this->hasRemoteEndpoint = true;
-                $this->remoteEndpointArgs[2] = $value;
-                continue;
-            }
-
-            if ($key === Tags\PEER_PORT) {
-                $this->hasRemoteEndpoint = true;
-                $this->remoteEndpointArgs[3] = $value;
-                continue;
-            }
-
-            $this->span->tag($key, $value);
+        if ($key === Tags\SPAN_KIND) {
+            $this->span->setKind(strtoupper($value));
+            return;
         }
+
+        if ($key === Tags\PEER_SERVICE) {
+            $this->hasRemoteEndpoint = true;
+            $this->remoteEndpointArgs[0] = $value;
+            return;
+        }
+
+        if ($key === Tags\PEER_HOST_IPV4) {
+            $this->hasRemoteEndpoint = true;
+            $this->remoteEndpointArgs[1] = $value;
+            return;
+        }
+
+        if ($key === Tags\PEER_HOST_IPV6) {
+            $this->hasRemoteEndpoint = true;
+            $this->remoteEndpointArgs[2] = $value;
+            return;
+        }
+
+        if ($key === Tags\PEER_PORT) {
+            $this->hasRemoteEndpoint = true;
+            $this->remoteEndpointArgs[3] = $value;
+            return;
+        }
+
+        $this->span->tag($key, $value);
     }
 
     /**
@@ -158,5 +170,15 @@ final class Span implements OTSpan
     public function getBaggageItem($key)
     {
         return $this->context->getBaggageItem($key);
+    }
+
+    public function setScope(Scope $scope)
+    {
+        $this->scope = $scope;
+    }
+
+    public function shouldCloseScopeOnFinish($flag = true)
+    {
+        $this->shouldCloseScopeOnFinish = $flag;
     }
 }

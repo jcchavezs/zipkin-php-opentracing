@@ -3,7 +3,7 @@
     "description": "A Zipkin bridge with OpenTracing",
     "type": "library",
     "require": {
-        "opentracing/opentracing": "1.0.0-beta2",
+        "opentracing/opentracing": "1.0.0-beta4",
         "jcchavezs/zipkin": "1.1.1"
     },
     "require-dev": {
