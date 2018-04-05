@@ -71,16 +71,10 @@ final class Tracer implements OTTracer
             $options = SpanOptions::create($options);
         }
 
-        $child = $this->findChildInReferences($options->getReferences());
-        if ($child === null && $this->getActiveSpan() !== null) {
-            $child = $this->getActiveSpan()->getContext();
+        if (!$this->hasParentInOptions($options) && $this->getActiveSpan() !== null) {
+            $parent = $this->getActiveSpan()->getContext();
+            $options = $options->withParent($parent);
         }
-
-        $options = SpanOptions::create(array_merge([
-            'tags' => $options->getTags(),
-            'start_time' => $options->getStartTime(),
-            'close_span_on_finish' => $options->getCloseSpanOnFinish(),
-        ], ($child ? ['child_of' => $child] : [])));
 
         $span = $this->startSpan($operationName, $options);
         $scope = $this->scopeManager->activate($span);
@@ -219,8 +213,9 @@ final class Tracer implements OTTracer
         throw new \UnexpectedValueException(sprintf('Format %s not implemented', $format));
     }
 
-    private function findChildInReferences(array $references)
+    private function hasParentInOptions(SpanOptions $options)
     {
+        $references = $options->getReferences();
         foreach ($references as $ref) {
             if ($ref->isType(Reference::CHILD_OF)) {
                 return $ref->getContext();
