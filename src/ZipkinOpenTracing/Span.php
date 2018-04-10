@@ -114,7 +114,7 @@ final class Span implements OTSpan
      */
     public function setTag($key, $value)
     {
-        if (is_bool($value)) {
+        if ($value === (bool) $value) {
             $value = $value ? 'true' : 'false';
         }
 
@@ -147,7 +147,7 @@ final class Span implements OTSpan
             return;
         }
 
-        $this->span->tag($key, (string)$value);
+        $this->span->tag($key, (string) $value);
     }
 
     /**
