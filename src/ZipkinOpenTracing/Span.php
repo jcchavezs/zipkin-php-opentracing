@@ -114,6 +114,10 @@ final class Span implements OTSpan
      */
     public function setTag($key, $value)
     {
+        if ($value === (bool) $value) {
+            $value = $value ? 'true' : 'false';
+        }
+
         if ($key === Tags\SPAN_KIND) {
             $this->span->setKind(strtoupper($value));
             return;
@@ -143,7 +147,7 @@ final class Span implements OTSpan
             return;
         }
 
-        $this->span->tag($key, $value);
+        $this->span->tag($key, (string) $value);
     }
 
     /**
