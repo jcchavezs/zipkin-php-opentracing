@@ -7,7 +7,6 @@ use OpenTracing\Reference;
 use OpenTracing\SpanContext as OTSpanContext;
 use OpenTracing\SpanOptions;
 use OpenTracing\Tracer as OTTracer;
-use Zipkin\Endpoint;
 use Zipkin\Propagation\Getter;
 use Zipkin\Propagation\Map;
 use Zipkin\Propagation\Propagation as ZipkinPropagation;
@@ -120,18 +119,13 @@ final class Tracer implements OTTracer
         $span->start($options->getStartTime() ?: Timestamp\now());
         $span->setName($operationName);
 
-        $hasRemoteEndpoint = false;
-        $remoteEndpointArgs = [Endpoint::DEFAULT_SERVICE_NAME, null, null, null];
+        $otSpan = ZipkinOpenTracingSpan::create($operationName, $span, null);
 
         foreach ($options->getTags() as $key => $value) {
-            $span->tag($key, $value);
+            $otSpan->setTag($key, $value);
         }
 
-        if ($hasRemoteEndpoint) {
-            $span->setRemoteEndpoint(Endpoint::create(...$remoteEndpointArgs));
-        }
-
-        return ZipkinOpenTracingSpan::create($operationName, $span, $hasRemoteEndpoint ? $remoteEndpointArgs : null);
+        return $otSpan;
     }
 
     /**
