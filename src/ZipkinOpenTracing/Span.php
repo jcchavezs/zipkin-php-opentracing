@@ -155,6 +155,14 @@ final class Span implements OTSpan
      */
     public function log(array $fields = [], $timestamp = null)
     {
+        if ($timestamp === null) {
+            $timestamp = microtime(true);
+        } elseif ($timestamp instanceof \DateTimeInterface) {
+            $timestamp = $timestamp->getTimestamp();
+        }
+
+        $timestamp = (int) ($timestamp * 1000 * 1000);
+
         foreach ($fields as $field) {
             $this->span->annotate($field, $timestamp);
         }
