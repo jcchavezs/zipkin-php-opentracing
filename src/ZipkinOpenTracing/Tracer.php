@@ -5,7 +5,7 @@ namespace ZipkinOpenTracing;
 use OpenTracing\Formats;
 use OpenTracing\Reference;
 use OpenTracing\SpanContext as OTSpanContext;
-use OpenTracing\SpanOptions;
+use OpenTracing\StartSpanOptions;
 use OpenTracing\Tracer as OTTracer;
 use Zipkin\Propagation\Getter;
 use Zipkin\Propagation\Map;
@@ -66,8 +66,8 @@ final class Tracer implements OTTracer
      */
     public function startActiveSpan($operationName, $options = [])
     {
-        if (!$options instanceof SpanOptions) {
-            $options = SpanOptions::create($options);
+        if (!$options instanceof StartSpanOptions) {
+            $options = StartSpanOptions::create($options);
         }
 
         if (!$this->hasParentInOptions($options) && $this->getActiveSpan() !== null) {
@@ -76,14 +76,9 @@ final class Tracer implements OTTracer
         }
 
         $span = $this->startSpan($operationName, $options);
-        $scope = $this->scopeManager->activate($span);
+        $scope = $this->scopeManager->activate($span, $options->shouldFinishSpanOnClose());
 
-        if ($span instanceof ZipkinOpenTracingSpan) {
-            $span->setScope($scope);
-            $span->shouldCloseScopeOnFinish($options->getCloseSpanOnFinish());
-        }
-
-        return $span;
+        return $scope;
     }
 
     /**
@@ -92,8 +87,8 @@ final class Tracer implements OTTracer
      */
     public function startSpan($operationName, $options = [])
     {
-        if (!($options instanceof SpanOptions)) {
-            $options = SpanOptions::create($options);
+        if (!($options instanceof StartSpanOptions)) {
+            $options = StartSpanOptions::create($options);
         }
 
         if (empty($options->getReferences())) {
@@ -207,7 +202,7 @@ final class Tracer implements OTTracer
         throw new \UnexpectedValueException(sprintf('Format %s not implemented', $format));
     }
 
-    private function hasParentInOptions(SpanOptions $options)
+    private function hasParentInOptions(StartSpanOptions $options)
     {
         $references = $options->getReferences();
         foreach ($references as $ref) {

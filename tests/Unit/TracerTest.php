@@ -108,12 +108,22 @@ final class TracerTest extends PHPUnit_Framework_TestCase
         $tracing = TracingBuilder::create()->build();
         $tracer = new Tracer($tracing);
 
-        $expectedSpan = $tracer->startActiveSpan(self::OPERATION_NAME);
+        $expectedScope = $tracer->startActiveSpan(self::OPERATION_NAME);
 
         $scopeManager = $tracer->getScopeManager();
         $activeScope = $scopeManager->getActive();
 
-        $actualSpan = $activeScope->getSpan();
+        $this->assertEquals($expectedScope, $activeScope);
+    }
+
+    public function testGetActiveSpan()
+    {
+        $tracing = TracingBuilder::create()->build();
+        $tracer = new Tracer($tracing);
+
+        $scope = $tracer->startActiveSpan(self::OPERATION_NAME);
+        $expectedSpan = $scope->getSpan();
+        $actualSpan = $tracer->getActiveSpan();
 
         $this->assertEquals($expectedSpan, $actualSpan);
     }

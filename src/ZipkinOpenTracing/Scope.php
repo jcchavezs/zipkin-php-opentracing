@@ -17,10 +17,16 @@ final class Scope implements OTScope
      */
     private $wrapped;
 
-    public function __construct(ScopeManager $scopeManager, OTSpan $wrapped)
+    /**
+     * @var bool
+     */
+    private $finishSpanOnClose;
+
+    public function __construct(ScopeManager $scopeManager, OTSpan $wrapped, $finishSpanOnClose)
     {
         $this->scopeManager = $scopeManager;
         $this->wrapped = $wrapped;
+        $this->finishSpanOnClose = $finishSpanOnClose;
         $this->toRestore = $scopeManager->getActive();
     }
 
@@ -37,11 +43,15 @@ final class Scope implements OTScope
      */
     public function close()
     {
-        $this->scopeManager->setActive($this->toRestore);
-    }
+        if ($this->scopeManager->getActive() !== $this) {
+            // This shouldn't happen if users call methods in expected order
+            return;
+        }
 
-    public function getToRestore()
-    {
-        return $this->toRestore;
+        if ($this->finishSpanOnClose) {
+            $this->wrapped->finish();
+        }
+
+        $this->scopeManager->setActive($this->toRestore);
     }
 }
