@@ -15,9 +15,9 @@ final class ScopeManager implements OTScopeManager
     /**
      * {@inheritdoc}
      */
-    public function activate(OTSpan $span)
+    public function activate(OTSpan $span, $finishSpanOnClose)
     {
-        $this->active = new Scope($this, $span);
+        $this->active = new Scope($this, $span, $finishSpanOnClose);
 
         return $this->active;
     }
@@ -28,17 +28,6 @@ final class ScopeManager implements OTScopeManager
     public function getActive()
     {
         return $this->active;
-    }
-
-    public function getScope(OTSpan $span)
-    {
-        for ($scope = $this->active; $scope !== null; $scope = $scope->getToRestore()) {
-            if ($span === $scope->getSpan()) {
-                return $scope;
-            }
-        }
-
-        return null;
     }
 
     public function setActive(Scope $scope = null)
