@@ -3,8 +3,8 @@
     "description": "A Zipkin bridge with OpenTracing",
     "type": "library",
     "require": {
-        "opentracing/opentracing": "1.0.0-beta5",
-        "jcchavezs/zipkin": "1.1.1"
+        "openzipkin/zipkin": "1.1.1",
+        "opentracing/opentracing": "1.0.0-beta5"
     },
     "require-dev": {
         "phpunit/phpunit": "~5.7.19",
