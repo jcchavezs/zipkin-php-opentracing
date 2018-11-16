@@ -10,6 +10,7 @@ use OpenTracing\Tracer as OTTracer;
 use Zipkin\Propagation\Getter;
 use Zipkin\Propagation\Map;
 use Zipkin\Propagation\Propagation as ZipkinPropagation;
+use Zipkin\Propagation\RequestHeaders;
 use Zipkin\Propagation\SamplingFlags;
 use Zipkin\Propagation\Setter;
 use Zipkin\Propagation\TraceContext;
@@ -68,6 +69,11 @@ final class Tracer implements OTTracer
     {
         if (!$options instanceof StartSpanOptions) {
             $options = StartSpanOptions::create($options);
+        }
+
+        if (!$this->hasParentInOptions($options) && $this->getActiveSpan() !== null) {
+            $parent = $this->getActiveSpan()->getContext();
+            $options = $options->withParent($parent);
         }
 
         $span = $this->startSpan($operationName, $options);
@@ -185,6 +191,10 @@ final class Tracer implements OTTracer
             return new Map();
         }
 
+        if ($format === Formats\HTTP_HEADERS) {
+            return new RequestHeaders();
+        }
+
         throw new \UnexpectedValueException(sprintf('Format %s not implemented', $format));
     }
 
@@ -197,6 +207,10 @@ final class Tracer implements OTTracer
     {
         if ($format === Formats\TEXT_MAP) {
             return new Map();
+        }
+
+        if ($format === Formats\HTTP_HEADERS) {
+            return new RequestHeaders();
         }
 
         throw new \UnexpectedValueException(sprintf('Format %s not implemented', $format));
