@@ -2,7 +2,6 @@
 
 namespace ZipkinOpenTracing\Tests\Unit;
 
-
 use function array_keys;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
@@ -10,7 +9,7 @@ use Psr\Http\Message\UriInterface;
 
 class HeaderClass implements RequestInterface
 {
-    /** @param array $headers */
+    /** @var array $headers */
     private $headers;
 
     /** @var array $lowerCaseHeaders */
@@ -73,6 +72,7 @@ class HeaderClass implements RequestInterface
 
     // These functions are required by the interface but no used during
     // parsing of headers
+    // phpcs:disable
     public function getProtocolVersion(){}
     public function withProtocolVersion($version){}
     public function getHeaderLine($name){}
@@ -85,4 +85,5 @@ class HeaderClass implements RequestInterface
     public function withMethod($method){}
     public function getUri(){}
     public function withUri(UriInterface $uri, $preserveHost = false){}
+    // phpcs:enable
 }
