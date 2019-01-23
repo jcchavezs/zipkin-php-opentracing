@@ -47,9 +47,9 @@ $tracing = TracingBuilder::create()
    ->havingReporter($reporter)
    ->build();
 
-$zipkinTrcer = new ZipkinOpenTracing\Tracer($tracing);
+$zipkinTracer = new ZipkinOpenTracing\Tracer($tracing);
 
-GlobalTracer::set($tracer); // optional
+GlobalTracer::set($zipkinTracer); // optional
 ```
 
 ### Creating Spans
