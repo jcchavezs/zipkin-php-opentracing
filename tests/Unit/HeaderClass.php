@@ -9,10 +9,14 @@ use Psr\Http\Message\UriInterface;
 
 final class HeaderClass implements RequestInterface
 {
-    /** @var array $headers */
+    /**
+     * @var array $headers
+     */
     private $headers;
 
-    /** @var array $lowerCaseHeaders */
+    /**
+     * @var array $lowerCaseHeaders
+     */
     private $lowerCaseHeaders;
 
     public function __construct(array $headers = [])
