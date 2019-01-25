@@ -7,7 +7,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 
-class HeaderClass implements RequestInterface
+final class HeaderClass implements RequestInterface
 {
     /** @var array $headers */
     private $headers;
