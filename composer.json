@@ -4,7 +4,7 @@
     "type": "library",
     "require": {
         "openzipkin/zipkin": "^1.3.4",
-        "opentracing/opentracing": "1.0.0-beta5"
+        "opentracing/opentracing": "^1@beta"
     },
     "require-dev": {
         "phpunit/phpunit": "~5.7.19",
