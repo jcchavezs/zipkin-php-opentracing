@@ -142,9 +142,9 @@ final class Tracer implements OTTracer
             return $injector($spanContext->getContext(), $carrier);
         }
 
-        throw new \InvalidArgumentException(sprintf(
+        throw new \InvalidArgumentException(\sprintf(
             'Invalid span context. Expected ZipkinOpenTracing\SpanContext, got %s.',
-            is_object($spanContext) ? get_class($spanContext) : gettype($spanContext)
+            \is_object($spanContext) ? \get_class($spanContext) : \gettype($spanContext)
         ));
     }
 
@@ -166,9 +166,9 @@ final class Tracer implements OTTracer
             return ZipkinOpenPartialTracingContext::fromSamplingFlags($extractedContext);
         }
 
-        throw new \UnexpectedValueException(sprintf(
+        throw new \UnexpectedValueException(\sprintf(
             'Invalid extracted context. Expected Zipkin\SamplingFlags, got %s',
-            is_object($extractedContext) ? get_class($extractedContext) : gettype($extractedContext)
+            \is_object($extractedContext) ? \get_class($extractedContext) : \gettype($extractedContext)
         ));
     }
 
@@ -195,7 +195,7 @@ final class Tracer implements OTTracer
             return new RequestHeaders();
         }
 
-        throw new \UnexpectedValueException(sprintf('Format %s not implemented', $format));
+        throw new \UnexpectedValueException(\sprintf('Format %s not implemented', $format));
     }
 
     /**
@@ -213,7 +213,7 @@ final class Tracer implements OTTracer
             return new RequestHeaders();
         }
 
-        throw new \UnexpectedValueException(sprintf('Format %s not implemented', $format));
+        throw new \UnexpectedValueException(\sprintf('Format %s not implemented', $format));
     }
 
     private function hasParentInOptions(StartSpanOptions $options)
