@@ -2,6 +2,7 @@
 
 namespace ZipkinOpenTracing;
 
+use InvalidArgumentException;
 use OpenTracing\Tags;
 use OpenTracing\Span as OTSpan;
 use OpenTracing\SpanContext;
@@ -155,6 +156,19 @@ final class Span implements OTSpan
      */
     public function log(array $fields = [], $timestamp = null)
     {
+        if ($timestamp === null) {
+            $timestamp = Timestamp\now();
+        } else {
+            if ($timestamp instanceof \DateTimeInterface) {
+                $timestamp = $timestamp->getTimestamp();
+            } elseif (!is_float($timestamp) && !is_int($timestamp)) {
+                throw new InvalidArgumentException(
+                    sprintf('Invalid timestamp. Expected float, int or DateTime, got %s', $timestamp)
+                );
+            }
+            $timestamp = $timestamp * 1000 * 1000;
+        }
+
         foreach ($fields as $field) {
             $this->span->annotate($field, $timestamp);
         }
