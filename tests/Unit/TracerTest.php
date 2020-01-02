@@ -132,7 +132,7 @@ final class TracerTest extends PHPUnit_Framework_TestCase
     {
         $tracing = TracingBuilder::create()->build();
         $tracer = new Tracer($tracing);
-        $headers = new HeaderClass([
+        $headers = new Request([
             'x-b3-traceid' => self::TRACE_ID,
             'x-b3-spanid' => self::SPAN_ID,
             'x-b3-sampled' => self::SAMPLED,
