@@ -49,7 +49,7 @@ final class PartialSpanContext implements OTSpanContext, WrappedTraceContext
      */
     public function getBaggageItem($key)
     {
-        return array_key_exists($key, $this->baggageItems) ? $this->baggageItems[$key] : null;
+        return \array_key_exists($key, $this->baggageItems) ? $this->baggageItems[$key] : null;
     }
 
     /**

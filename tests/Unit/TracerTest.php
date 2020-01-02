@@ -127,4 +127,28 @@ final class TracerTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($expectedSpan, $actualSpan);
     }
+
+    public function testExtractContextHeaderSuccess()
+    {
+        $tracing = TracingBuilder::create()->build();
+        $tracer = new Tracer($tracing);
+        $headers = new Request([
+            'x-b3-traceid' => self::TRACE_ID,
+            'x-b3-spanid' => self::SPAN_ID,
+            'x-b3-sampled' => self::SAMPLED,
+            'x-b3-flags' => self::DEBUG,
+        ]);
+        $extractedContext = $tracer->extract(Formats\HTTP_HEADERS, $headers);
+
+        $this->assertTrue($extractedContext instanceof SpanContext);
+        $this->assertTrue(
+            $extractedContext->getContext()->isEqual(TraceContext::create(
+                self::TRACE_ID,
+                self::SPAN_ID,
+                null,
+                self::SAMPLED === '1',
+                self::DEBUG === '1'
+            ))
+        );
+    }
 }
