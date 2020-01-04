@@ -18,7 +18,7 @@ and README from the [OpenTracing API](https://github.com/opentracing/opentracing
 
 In order to understand OpenTracing API, one must first be familiar with the [OpenTracing project](http://opentracing.io) and [terminology](http://opentracing.io/spec/) more generally.
 
-To understand how Zipkin works, you can look at [Zipkin Architecture](http://zipkin.io/pages/architecture.html) and [Zipkin PHP](https://github.com/jcchavezs/zipkin-php) documentation.
+To understand how Zipkin works, you can look at [Zipkin Architecture](http://zipkin.io/pages/architecture.html) and [Zipkin PHP](https://github.com/zipkin/zipkin-php) documentation.
 
 ### Installation
 
