@@ -2,7 +2,7 @@
 
 namespace ZipkinOpenTracing\Tests\Unit;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Argument\Token\AnyValuesToken;
 use Zipkin\Propagation\DefaultSamplingFlags;
@@ -16,7 +16,7 @@ use ZipkinOpenTracing\Tracer;
 use OpenTracing\Formats;
 use Zipkin\Propagation\TraceContext;
 
-final class TracerTest extends PHPUnit_Framework_TestCase
+final class TracerTest extends TestCase
 {
     const OPERATION_NAME = 'test';
     const TRACE_ID = '48485a3953bb6124';

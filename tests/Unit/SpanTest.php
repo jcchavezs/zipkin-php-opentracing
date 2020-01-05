@@ -4,14 +4,14 @@ namespace ZipkinOpenTracing\Tests\Unit;
 
 use DateTime;
 use OpenTracing\Tags;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Zipkin\Propagation\DefaultSamplingFlags;
-use Zipkin\Span as ZipkinSpan;
 use Zipkin\Propagation\TraceContext;
+use Zipkin\Span as ZipkinSpan;
 use ZipkinOpenTracing\Span;
 
-final class SpanTest extends PHPUnit_Framework_TestCase
+final class SpanTest extends TestCase
 {
     const OPERATION_NAME = 'test_name';
     const SPAN_KIND = 'kind';
