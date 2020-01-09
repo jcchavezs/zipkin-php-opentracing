@@ -2,11 +2,11 @@
 
 namespace ZipkinOpenTracing\Tests\Unit;
 
-use PHPUnit_Framework_TestCase;
-use ZipkinOpenTracing\ScopeManager;
 use OpenTracing\Span;
+use PHPUnit\Framework\TestCase;
+use ZipkinOpenTracing\ScopeManager;
 
-final class ScopeManagerTest extends PHPUnit_Framework_TestCase
+final class ScopeManagerTest extends TestCase
 {
     /**
      * @var ScopeManager
