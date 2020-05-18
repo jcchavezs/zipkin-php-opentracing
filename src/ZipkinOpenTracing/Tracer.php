@@ -136,6 +136,10 @@ final class Tracer implements OTTracer
      */
     public function inject(OTSpanContext $spanContext, $format, &$carrier)
     {
+        if ($spanContext instanceof NoopSpanContext) {
+            return;
+        }
+
         if ($spanContext instanceof ZipkinOpenTracingContext) {
             $setter = $this->getSetterByFormat($format);
             $injector = $this->propagation->getInjector($setter);
