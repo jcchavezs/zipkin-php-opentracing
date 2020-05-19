@@ -6,6 +6,12 @@ use ArrayIterator;
 use OpenTracing\SpanContext as OTSpanContext;
 use Zipkin\Propagation\TraceContext;
 
+/**
+ * @deprecated
+ *
+ * This shouldn't have been introduced as propagation expects an actual
+ * context not a noop one.
+ */
 class NoopSpanContext implements OTSpanContext, WrappedTraceContext
 {
     /**
