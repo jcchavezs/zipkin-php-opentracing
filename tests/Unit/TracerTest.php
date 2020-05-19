@@ -129,7 +129,7 @@ final class TracerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expectedSpan, $actualSpan);
     }
 
-    public function testExtractContextHeaderSuccess()
+    public function testExtractContextFromRequestHeadersSuccess()
     {
         $tracing = TracingBuilder::create()->build();
         $tracer = new Tracer($tracing);
@@ -156,7 +156,7 @@ final class TracerTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider samplers
      */
-    public function testInjectContextHeaderSuccess(Sampler $sampler)
+    public function testInjectContextToRequestHeadersSuccess(Sampler $sampler)
     {
         $tracing = TracingBuilder::create()->havingSampler($sampler)->build();
         $tracer = new Tracer($tracing);
@@ -164,7 +164,8 @@ final class TracerTest extends PHPUnit_Framework_TestCase
 
         $headers = new Request();
         $tracer->inject($span->getContext(), Formats\HTTP_HEADERS, $headers);
-        $headers->hasHeader('x-trace-id');
+        $this->assertTrue($headers->hasHeader('x-b3-traceid'));
+        $this->assertTrue($headers->hasHeader('x-b3-spanid'));
     }
 
     public function samplers()

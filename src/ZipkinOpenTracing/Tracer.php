@@ -7,12 +7,9 @@ use OpenTracing\Reference;
 use OpenTracing\SpanContext as OTSpanContext;
 use OpenTracing\StartSpanOptions;
 use OpenTracing\Tracer as OTTracer;
-use Zipkin\Propagation\Getter;
 use Zipkin\Propagation\Map;
-use Zipkin\Propagation\Propagation as ZipkinPropagation;
 use Zipkin\Propagation\RequestHeaders;
 use Zipkin\Propagation\SamplingFlags;
-use Zipkin\Propagation\Setter;
 use Zipkin\Propagation\TraceContext;
 use Zipkin\Timestamp;
 use Zipkin\Tracer as ZipkinTracer;
@@ -30,14 +27,28 @@ final class Tracer implements OTTracer
     private $tracer;
 
     /**
-     * @var ZipkinPropagation
+     * @var callable[]|array
      */
-    private $propagation;
+    private $injectors;
+
+    /**
+     * @var callable[]|array
+     */
+    private $extractors;
 
     public function __construct(ZipkinTracing $tracing)
     {
+        $propagation = $tracing->getPropagation();
+        $this->injectors = [
+            Formats\TEXT_MAP => $propagation->getInjector(new Map()),
+            Formats\HTTP_HEADERS => $propagation->getInjector(new RequestHeaders())
+        ];
+        $this->extractors = [
+            Formats\TEXT_MAP => $propagation->getExtractor(new Map()),
+            Formats\HTTP_HEADERS => $propagation->getExtractor(new RequestHeaders())
+        ];
+
         $this->tracer = $tracing->getTracer();
-        $this->propagation = $tracing->getPropagation();
         $this->scopeManager = new ScopeManager();
     }
 
@@ -137,8 +148,7 @@ final class Tracer implements OTTracer
     public function inject(OTSpanContext $spanContext, $format, &$carrier)
     {
         if ($spanContext instanceof ZipkinOpenTracingContext) {
-            $setter = $this->getSetterByFormat($format);
-            $injector = $this->propagation->getInjector($setter);
+            $injector = $this->getInjector($format);
             return $injector($spanContext->getContext(), $carrier);
         }
 
@@ -154,8 +164,7 @@ final class Tracer implements OTTracer
      */
     public function extract($format, $carrier)
     {
-        $getter = $this->getGetterByFormat($format);
-        $extractor =  $this->propagation->getExtractor($getter);
+        $extractor = $this->getExtractor($format);
         $extractedContext = $extractor($carrier);
 
         if ($extractedContext instanceof TraceContext) {
@@ -182,17 +191,13 @@ final class Tracer implements OTTracer
 
     /**
      * @param string $format
-     * @return Setter
+     * @return callable
      * @throws \UnexpectedValueException
      */
-    private function getSetterByFormat($format)
+    private function getInjector($format)
     {
-        if ($format === Formats\TEXT_MAP) {
-            return new Map();
-        }
-
-        if ($format === Formats\HTTP_HEADERS) {
-            return new RequestHeaders();
+        if (array_key_exists($format, $this->injectors)) {
+            return $this->injectors[$format];
         }
 
         throw new \UnexpectedValueException(\sprintf('Format %s not implemented', $format));
@@ -200,17 +205,13 @@ final class Tracer implements OTTracer
 
     /**
      * @param string $format
-     * @return Getter
+     * @return callable
      * @throws \UnexpectedValueException
      */
-    private function getGetterByFormat($format)
+    private function getExtractor($format)
     {
-        if ($format === Formats\TEXT_MAP) {
-            return new Map();
-        }
-
-        if ($format === Formats\HTTP_HEADERS) {
-            return new RequestHeaders();
+        if (array_key_exists($format, $this->extractors)) {
+            return $this->extractors[$format];
         }
 
         throw new \UnexpectedValueException(\sprintf('Format %s not implemented', $format));
