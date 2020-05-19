@@ -15,6 +15,7 @@ use ZipkinOpenTracing\SpanContext;
 use ZipkinOpenTracing\Tracer;
 use OpenTracing\Formats;
 use Zipkin\Propagation\TraceContext;
+use Zipkin\Samplers\BinarySampler;
 
 final class TracerTest extends PHPUnit_Framework_TestCase
 {
@@ -150,5 +151,27 @@ final class TracerTest extends PHPUnit_Framework_TestCase
                 self::DEBUG === '1'
             ))
         );
+    }
+
+    /**
+     * @dataProvider samplers
+     */
+    public function testInjectContextHeaderSuccess(Sampler $sampler)
+    {
+        $tracing = TracingBuilder::create()->havingSampler($sampler)->build();
+        $tracer = new Tracer($tracing);
+        $span = $tracer->startSpan("test");
+
+        $headers = new Request();
+        $tracer->inject($span->getContext(), Formats\HTTP_HEADERS, $headers);
+        $headers->hasHeader('x-trace-id');
+    }
+
+    public function samplers()
+    {
+        return [
+            [BinarySampler::createAsAlwaysSample()],
+            [BinarySampler::createAsNeverSample()],
+        ];
     }
 }
