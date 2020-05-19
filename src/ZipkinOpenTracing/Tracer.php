@@ -2,22 +2,23 @@
 
 namespace ZipkinOpenTracing;
 
+use Zipkin\Timestamp;
 use OpenTracing\Formats;
 use OpenTracing\Reference;
-use OpenTracing\SpanContext as OTSpanContext;
-use OpenTracing\StartSpanOptions;
-use OpenTracing\Tracer as OTTracer;
 use Zipkin\Propagation\Map;
-use Zipkin\Propagation\RequestHeaders;
-use Zipkin\Propagation\SamplingFlags;
-use Zipkin\Propagation\TraceContext;
-use Zipkin\Timestamp;
+use OpenTracing\StartSpanOptions;
 use Zipkin\Tracer as ZipkinTracer;
+use OpenTracing\Tracer as OTTracer;
+use Zipkin\Propagation\TraceContext;
 use Zipkin\Tracing as ZipkinTracing;
-use ZipkinOpenTracing\PartialSpanContext as ZipkinOpenPartialTracingContext;
+use Zipkin\Propagation\SamplingFlags;
+use Zipkin\Propagation\RequestHeaders;
+use OpenTracing\Exceptions\UnsupportedFormat;
+use OpenTracing\SpanContext as OTSpanContext;
 use ZipkinOpenTracing\Span as ZipkinOpenTracingSpan;
 use ZipkinOpenTracing\NoopSpan as ZipkinOpenTracingNoopSpan;
 use ZipkinOpenTracing\SpanContext as ZipkinOpenTracingContext;
+use ZipkinOpenTracing\PartialSpanContext as ZipkinOpenPartialTracingContext;
 
 final class Tracer implements OTTracer
 {
@@ -192,7 +193,7 @@ final class Tracer implements OTTracer
     /**
      * @param string $format
      * @return callable
-     * @throws \UnexpectedValueException
+     * @throws UnsupportedFormat
      */
     private function getInjector($format)
     {
@@ -200,13 +201,13 @@ final class Tracer implements OTTracer
             return $this->injectors[$format];
         }
 
-        throw new \UnexpectedValueException(\sprintf('Format %s not implemented', $format));
+        throw new UnsupportedFormat(\sprintf('Format %s not implemented', $format));
     }
 
     /**
      * @param string $format
      * @return callable
-     * @throws \UnexpectedValueException
+     * @throws UnsupportedFormat
      */
     private function getExtractor($format)
     {
@@ -214,7 +215,7 @@ final class Tracer implements OTTracer
             return $this->extractors[$format];
         }
 
-        throw new \UnexpectedValueException(\sprintf('Format %s not implemented', $format));
+        throw new UnsupportedFormat($format);
     }
 
     private function hasParentInOptions(StartSpanOptions $options)
