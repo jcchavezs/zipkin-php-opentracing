@@ -2,20 +2,21 @@
 
 namespace ZipkinOpenTracing\Tests\Unit;
 
-use PHPUnit_Framework_TestCase;
+use Zipkin\Sampler;
 use Prophecy\Argument;
+use OpenTracing\Formats;
+use Zipkin\TracingBuilder;
+use ZipkinOpenTracing\Span;
+use ZipkinOpenTracing\Tracer;
+use PHPUnit_Framework_TestCase;
+use ZipkinOpenTracing\NoopSpan;
+use Zipkin\Samplers\BinarySampler;
+use ZipkinOpenTracing\SpanContext;
+use Zipkin\Propagation\TraceContext;
+use ZipkinOpenTracing\PartialSpanContext;
 use Prophecy\Argument\Token\AnyValuesToken;
 use Zipkin\Propagation\DefaultSamplingFlags;
-use Zipkin\Sampler;
-use Zipkin\TracingBuilder;
-use ZipkinOpenTracing\NoopSpan;
-use ZipkinOpenTracing\PartialSpanContext;
-use ZipkinOpenTracing\Span;
-use ZipkinOpenTracing\SpanContext;
-use ZipkinOpenTracing\Tracer;
-use OpenTracing\Formats;
-use Zipkin\Propagation\TraceContext;
-use Zipkin\Samplers\BinarySampler;
+use OpenTracing\Exceptions\UnsupportedFormat;
 
 final class TracerTest extends PHPUnit_Framework_TestCase
 {
@@ -129,7 +130,7 @@ final class TracerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expectedSpan, $actualSpan);
     }
 
-    public function testExtractContextHeaderSuccess()
+    public function testExtractContextFromRequestHeadersSuccess()
     {
         $tracing = TracingBuilder::create()->build();
         $tracer = new Tracer($tracing);
@@ -153,10 +154,21 @@ final class TracerTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testInjectContextWithUnkownFormatFails()
+    {
+        $this->expectException(UnsupportedFormat::class);
+        $tracing = TracingBuilder::create()->build();
+        $tracer = new Tracer($tracing);
+        $span = $tracer->startSpan("test");
+
+        $headers = new Request();
+        $tracer->inject($span->getContext(), 'unknown_format', $headers);
+    }
+
     /**
      * @dataProvider samplers
      */
-    public function testInjectContextHeaderSuccess(Sampler $sampler)
+    public function testInjectContextToRequestHeadersSuccess(Sampler $sampler)
     {
         $tracing = TracingBuilder::create()->havingSampler($sampler)->build();
         $tracer = new Tracer($tracing);
@@ -164,7 +176,8 @@ final class TracerTest extends PHPUnit_Framework_TestCase
 
         $headers = new Request();
         $tracer->inject($span->getContext(), Formats\HTTP_HEADERS, $headers);
-        $headers->hasHeader('x-trace-id');
+        $this->assertTrue($headers->hasHeader('x-b3-traceid'));
+        $this->assertTrue($headers->hasHeader('x-b3-spanid'));
     }
 
     public function samplers()
