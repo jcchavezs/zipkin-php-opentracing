@@ -42,10 +42,10 @@ $endpoint = Endpoint::create('my_service', '127.0.0.1', null, 8081);
 $reporter = new Zipkin\Reporters\Http();
 $sampler = BinarySampler::createAsAlwaysSample();
 $tracing = TracingBuilder::create()
-	->havingLocalEndpoint($endpoint)
-   ->havingSampler($sampler)
-   ->havingReporter($reporter)
-   ->build();
+    ->havingLocalEndpoint($endpoint)
+    ->havingSampler($sampler)
+    ->havingReporter($reporter)
+    ->build();
 
 $zipkinTracer = new ZipkinOpenTracing\Tracer($tracing);
 
@@ -87,12 +87,12 @@ register_shutdown_function(function() {
 
 ### Run tests
 
-```
+```bash
 composer test
 ```
 
 ### Fix lint
 
-```
+```bash
 composer fix-lint
 ```
