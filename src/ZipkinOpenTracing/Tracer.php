@@ -2,23 +2,23 @@
 
 namespace ZipkinOpenTracing;
 
-use Zipkin\Timestamp;
-use OpenTracing\Formats;
-use OpenTracing\Reference;
-use Zipkin\Propagation\Map;
-use OpenTracing\StartSpanOptions;
-use Zipkin\Tracer as ZipkinTracer;
-use OpenTracing\Tracer as OTTracer;
-use Zipkin\Propagation\TraceContext;
 use Zipkin\Tracing as ZipkinTracing;
+use Zipkin\Tracer as ZipkinTracer;
+use Zipkin\Timestamp;
+use Zipkin\Propagation\TraceContext;
 use Zipkin\Propagation\SamplingFlags;
 use Zipkin\Propagation\RequestHeaders;
-use OpenTracing\Exceptions\UnsupportedFormat;
-use OpenTracing\SpanContext as OTSpanContext;
-use ZipkinOpenTracing\Span as ZipkinOpenTracingSpan;
-use ZipkinOpenTracing\NoopSpan as ZipkinOpenTracingNoopSpan;
+use Zipkin\Propagation\Map;
 use ZipkinOpenTracing\SpanContext as ZipkinOpenTracingContext;
+use ZipkinOpenTracing\Span as ZipkinOpenTracingSpan;
 use ZipkinOpenTracing\PartialSpanContext as ZipkinOpenPartialTracingContext;
+use ZipkinOpenTracing\NoopSpan as ZipkinOpenTracingNoopSpan;
+use OpenTracing\Tracer as OTTracer;
+use OpenTracing\StartSpanOptions;
+use OpenTracing\SpanContext as OTSpanContext;
+use OpenTracing\Reference;
+use OpenTracing\Formats;
+use OpenTracing\Exceptions\UnsupportedFormat;
 
 final class Tracer implements OTTracer
 {
@@ -195,7 +195,7 @@ final class Tracer implements OTTracer
      * @return callable
      * @throws UnsupportedFormat
      */
-    private function getInjector($format)
+    private function getInjector($format): callable
     {
         if (array_key_exists($format, $this->injectors)) {
             return $this->injectors[$format];
@@ -209,7 +209,7 @@ final class Tracer implements OTTracer
      * @return callable
      * @throws UnsupportedFormat
      */
-    private function getExtractor($format)
+    private function getExtractor($format): callable
     {
         if (array_key_exists($format, $this->extractors)) {
             return $this->extractors[$format];
@@ -218,7 +218,7 @@ final class Tracer implements OTTracer
         throw new UnsupportedFormat($format);
     }
 
-    private function hasParentInOptions(StartSpanOptions $options)
+    private function hasParentInOptions(StartSpanOptions $options): ?SpanContext
     {
         $references = $options->getReferences();
         foreach ($references as $ref) {
