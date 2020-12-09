@@ -64,6 +64,10 @@ final class Scope implements OTScope
      */
     public function close()
     {
+        if ($this->isClosed) {
+            return;
+        }
+
         if ($this->finishSpanOnClose) {
             $this->wrapped->finish();
         }
