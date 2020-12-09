@@ -81,6 +81,13 @@ final class ScopeManagerTest extends TestCase
         $scope2->close();
         $scope3->close();
 
+        // Since scope2 was closed before scope3, the new active scope
+        // now it is scope1 as scope3 attempts to restore scope2 but that
+        // is closed already so it goes up to scope 1. This is because the
+        // scopes have been closed in disorder and hence we do our best effort
+        // to keep consistent states rather than get stuck in a unlogical scope
+        // because subsequent closes might not have effect otherwise.
+        // It can be thought as a reconcilliation of scope closing.
         $this->assertEquals($scope1, $this->manager->getActive());
     }
 }
