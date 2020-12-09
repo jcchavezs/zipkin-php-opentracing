@@ -2,15 +2,15 @@
 
 namespace ZipkinOpenTracing;
 
-use OpenTracing\Scope as OTScope;
 use OpenTracing\Span as OTSpan;
+use OpenTracing\Scope as OTScope;
 
 final class Scope implements OTScope
 {
     /**
      * @var ScopeManager
      */
-    private $scopeManger;
+    private $scopeManager;
 
     /**
      * @var OTSpan
@@ -22,12 +22,33 @@ final class Scope implements OTScope
      */
     private $finishSpanOnClose;
 
-    public function __construct(ScopeManager $scopeManager, OTSpan $wrapped, $finishSpanOnClose)
-    {
+    /**
+     * @var Scope
+     */
+    private $toRestore;
+
+    /**
+     * @var bool
+     */
+    private $isClosed = false;
+
+    /**
+     * @var callable|function(?Scope):void
+     */
+    private $restorer;
+
+    public function __construct(
+        ScopeManager $scopeManager,
+        OTSpan $wrapped,
+        bool $finishSpanOnClose,
+        ?Scope $toRestore,
+        callable $restorer
+    ) {
         $this->scopeManager = $scopeManager;
         $this->wrapped = $wrapped;
         $this->finishSpanOnClose = $finishSpanOnClose;
-        $this->toRestore = $scopeManager->getActive();
+        $this->toRestore = $toRestore;
+        $this->restorer = $restorer;
     }
 
     /**
@@ -43,15 +64,38 @@ final class Scope implements OTScope
      */
     public function close()
     {
+        if ($this->finishSpanOnClose) {
+            $this->wrapped->finish();
+        }
+
+        $this->isClosed = true;
         if ($this->scopeManager->getActive() !== $this) {
             // This shouldn't happen if users call methods in expected order
             return;
         }
 
-        if ($this->finishSpanOnClose) {
-            $this->wrapped->finish();
+        if ($this->toRestore === null) {
+            ($this->restorer)(null);
+            return;
         }
 
-        $this->scopeManager->setActive($this->toRestore);
+        $toRestore = $this->toRestore;
+        while (true) {
+            // If the toRestore scope is already closed, we want to go up
+            // to the previous level recursively until we get to the last
+            // first one that is still open.
+            if ($toRestore->isClosed) {
+                $toRestore = $toRestore->toRestore;
+            } else {
+                break;
+            }
+
+            if ($toRestore === null) {
+                ($this->restorer)(null);
+                return;
+            }
+        }
+
+        ($this->restorer)($toRestore);
     }
 }

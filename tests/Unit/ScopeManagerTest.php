@@ -2,9 +2,9 @@
 
 namespace ZipkinOpenTracing\Tests\Unit;
 
-use OpenTracing\Span;
-use PHPUnit\Framework\TestCase;
 use ZipkinOpenTracing\ScopeManager;
+use PHPUnit\Framework\TestCase;
+use OpenTracing\Span;
 
 final class ScopeManagerTest extends TestCase
 {
@@ -18,7 +18,7 @@ final class ScopeManagerTest extends TestCase
         $this->manager = new ScopeManager();
     }
 
-    public function testAbleGetActiveScope()
+    public function testGetActiveScopeSuccessfully()
     {
         $this->assertNull($this->manager->getActive());
 
@@ -36,5 +36,51 @@ final class ScopeManagerTest extends TestCase
         $scope->close();
 
         $this->assertNull($this->manager->getActive());
+    }
+
+    public function testScopeClosingRestoresPreviousScope()
+    {
+        $span1 = $this->prophesize(Span::class)->reveal();
+        $scope1 = $this->manager->activate($span1, false);
+
+        $span2 = $this->prophesize(Span::class)->reveal();
+        $scope2 = $this->manager->activate($span2, false);
+
+        $scope2->close();
+
+        $this->assertEquals($scope1, $this->manager->getActive());
+    }
+
+    public function testScopeClosingRestoresPreviousScopeEvenIfThereIsAnotherOpen()
+    {
+        $span1 = $this->prophesize(Span::class)->reveal();
+        $scope1 = $this->manager->activate($span1, false);
+
+        $span2 = $this->prophesize(Span::class)->reveal();
+        $scope2 = $this->manager->activate($span2, false);
+
+        $span3 = $this->prophesize(Span::class)->reveal();
+        $scope3 = $this->manager->activate($span3, false);
+
+        $scope2->close();
+
+        $this->assertEquals($scope3, $this->manager->getActive());
+    }
+
+    public function testScopeClosingRestoresPreviousScopeInCascade()
+    {
+        $span1 = $this->prophesize(Span::class)->reveal();
+        $scope1 = $this->manager->activate($span1, false);
+
+        $span2 = $this->prophesize(Span::class)->reveal();
+        $scope2 = $this->manager->activate($span2, false);
+
+        $span3 = $this->prophesize(Span::class)->reveal();
+        $scope3 = $this->manager->activate($span3, false);
+
+        $scope2->close();
+        $scope3->close();
+
+        $this->assertEquals($scope1, $this->manager->getActive());
     }
 }
