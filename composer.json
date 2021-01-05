@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": "~7.1",
-        "opentracing/opentracing": "^1@beta",
+        "opentracing/opentracing": "^1.0",
         "openzipkin/zipkin": "^2.0.2"
     },
     "provide": {
@@ -23,7 +23,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "0.2.x-dev"
+            "dev-master": "1.0.x-dev"
         }
     },
     "autoload": {

@@ -31,7 +31,7 @@ final class NoopSpan implements OTSpan
     /**
      * @return string
      */
-    public function getOperationName()
+    public function getOperationName(): string
     {
         return '';
     }
@@ -39,7 +39,7 @@ final class NoopSpan implements OTSpan
     /**
      * {@inheritdoc}
      */
-    public function getContext()
+    public function getContext(): OTSpanContext
     {
         return $this->context;
     }
@@ -47,28 +47,28 @@ final class NoopSpan implements OTSpan
     /**
      * {@inheritdoc}
      */
-    public function finish($finishTime = null, array $logRecords = [])
+    public function finish($finishTime = null, array $logRecords = []): void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function overwriteOperationName($newOperationName)
+    public function overwriteOperationName(string $newOperationName): void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setTag($key, $value)
+    public function setTag(string $key, $value): void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function log(array $fields = [], $timestamp = null)
+    public function log(array $fields = [], $timestamp = null): void
     {
     }
 
@@ -81,7 +81,7 @@ final class NoopSpan implements OTSpan
      * @param string $key
      * @param string $value
      */
-    public function addBaggageItem($key, $value)
+    public function addBaggageItem(string $key, $value): void
     {
     }
 
@@ -89,7 +89,7 @@ final class NoopSpan implements OTSpan
      * @param string $key
      * @return string
      */
-    public function getBaggageItem($key)
+    public function getBaggageItem(string $key): ?string
     {
         return '';
     }
