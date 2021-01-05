@@ -45,7 +45,7 @@ final class SpanContext implements OTSpanContext, WrappedTraceContext
     /**
      * @inheritdoc
      */
-    public function withBaggageItem(string $key, string $value): ?OTSpanContext
+    public function withBaggageItem(string $key, string $value): OTSpanContext
     {
         return new self($this->traceContext, [$key => $value] + $this->baggageItems);
     }

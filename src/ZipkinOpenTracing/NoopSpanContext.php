@@ -56,7 +56,7 @@ class NoopSpanContext implements OTSpanContext, WrappedTraceContext
     /**
      * @inheritdoc
      */
-    public function withBaggageItem(string $key, $value): ?OTSpanContext
+    public function withBaggageItem(string $key, string $value): OTSpanContext
     {
         return $this;
     }

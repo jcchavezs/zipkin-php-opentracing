@@ -55,7 +55,7 @@ final class PartialSpanContext implements OTSpanContext, WrappedTraceContext
     /**
      * @inheritdoc
      */
-    public function withBaggageItem(string $key, string $value): ?OTSpanContext
+    public function withBaggageItem(string $key, string $value): OTSpanContext
     {
         return new self($this->samplingFlags, [$key => $value] + $this->baggageItems);
     }
