@@ -81,7 +81,7 @@ final class NoopSpan implements OTSpan
      * @param string $key
      * @param string $value
      */
-    public function addBaggageItem(string $key, $value): void
+    public function addBaggageItem(string $key, string $value): void
     {
     }
 

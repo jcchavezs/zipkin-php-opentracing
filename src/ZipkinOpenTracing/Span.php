@@ -104,7 +104,7 @@ final class Span implements OTSpan
     /**
      * @inheritdoc
      */
-    public function overwriteOperationName($newOperationName): void
+    public function overwriteOperationName(string $newOperationName): void
     {
         $this->operationName = $newOperationName;
         $this->span->setName($newOperationName);
