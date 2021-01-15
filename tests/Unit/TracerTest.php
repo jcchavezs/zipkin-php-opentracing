@@ -4,6 +4,7 @@ namespace ZipkinOpenTracing\Tests\Unit;
 
 use OpenTracing\Exceptions\UnsupportedFormat;
 use OpenTracing\Formats;
+use OpenTracing\UnsupportedFormatException;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument\Token\AnyValuesToken;
 use Prophecy\Argument;
@@ -156,7 +157,7 @@ final class TracerTest extends TestCase
 
     public function testInjectContextWithUnkownFormatFails()
     {
-        $this->expectException(UnsupportedFormat::class);
+        $this->expectException(UnsupportedFormatException::class);
         $tracing = TracingBuilder::create()->build();
         $tracer = new Tracer($tracing);
         $span = $tracer->startSpan("test");

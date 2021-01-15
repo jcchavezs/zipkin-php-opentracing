@@ -2,6 +2,7 @@
 
 namespace ZipkinOpenTracing;
 
+use OpenTracing\ScopeManager as OTScopeManager;
 use Zipkin\Tracing as ZipkinTracing;
 use Zipkin\Tracer as ZipkinTracer;
 use Zipkin\Timestamp;
@@ -18,7 +19,9 @@ use OpenTracing\StartSpanOptions;
 use OpenTracing\SpanContext as OTSpanContext;
 use OpenTracing\Reference;
 use OpenTracing\Formats;
-use OpenTracing\Exceptions\UnsupportedFormat;
+use OpenTracing\UnsupportedFormatException;
+use OpenTracing\Span as OTSpan;
+use OpenTracing\Scope as OTScope;
 
 final class Tracer implements OTTracer
 {
@@ -56,7 +59,7 @@ final class Tracer implements OTTracer
     /**
      * @inheritdoc
      */
-    public function getScopeManager()
+    public function getScopeManager(): OTScopeManager
     {
         return $this->scopeManager;
     }
@@ -64,7 +67,7 @@ final class Tracer implements OTTracer
     /**
      * @inheritdoc
      */
-    public function getActiveSpan()
+    public function getActiveSpan(): ?OTSpan
     {
         $activeScope = $this->scopeManager->getActive();
         if ($activeScope === null) {
@@ -77,7 +80,7 @@ final class Tracer implements OTTracer
     /**
      * @inheritdoc
      */
-    public function startActiveSpan($operationName, $options = [])
+    public function startActiveSpan(string $operationName, $options = []): OTScope
     {
         if (!$options instanceof StartSpanOptions) {
             $options = StartSpanOptions::create($options);
@@ -98,7 +101,7 @@ final class Tracer implements OTTracer
      * @inheritdoc
      * @return OTSpan|Span
      */
-    public function startSpan($operationName, $options = [])
+    public function startSpan(string $operationName, $options = []): OTSpan
     {
         if (!($options instanceof StartSpanOptions)) {
             $options = StartSpanOptions::create($options);
@@ -115,7 +118,7 @@ final class Tracer implements OTTracer
             /**
              * @var ZipkinOpenTracingContext $refContext
              */
-            $refContext = $options->getReferences()[0]->getContext();
+            $refContext = $options->getReferences()[0]->getSpanContext();
             $context = $refContext->getContext();
 
             if ($context instanceof TraceContext) {
@@ -146,11 +149,12 @@ final class Tracer implements OTTracer
      * @throws \InvalidArgumentException
      * @throws \UnexpectedValueException
      */
-    public function inject(OTSpanContext $spanContext, $format, &$carrier)
+    public function inject(OTSpanContext $spanContext, string $format, &$carrier): void
     {
         if ($spanContext instanceof ZipkinOpenTracingContext) {
             $injector = $this->getInjector($format);
-            return $injector($spanContext->getContext(), $carrier);
+            $injector($spanContext->getContext(), $carrier);
+            return;
         }
 
         throw new \InvalidArgumentException(\sprintf(
@@ -163,7 +167,7 @@ final class Tracer implements OTTracer
      * @inheritdoc
      * @throws \UnexpectedValueException
      */
-    public function extract($format, $carrier)
+    public function extract(string $format, $carrier): ?OTSpanContext
     {
         $extractor = $this->getExtractor($format);
         $extractedContext = $extractor($carrier);
@@ -185,7 +189,7 @@ final class Tracer implements OTTracer
     /**
      * @inheritdoc
      */
-    public function flush()
+    public function flush(): void
     {
         $this->tracer->flush();
     }
@@ -193,7 +197,7 @@ final class Tracer implements OTTracer
     /**
      * @param string $format
      * @return callable
-     * @throws UnsupportedFormat
+     * @throws UnsupportedFormatException
      */
     private function getInjector($format): callable
     {
@@ -201,13 +205,13 @@ final class Tracer implements OTTracer
             return $this->injectors[$format];
         }
 
-        throw new UnsupportedFormat(\sprintf('Format %s not implemented', $format));
+        throw UnsupportedFormatException::forFormat($format);
     }
 
     /**
      * @param string $format
      * @return callable
-     * @throws UnsupportedFormat
+     * @throws UnsupportedFormatException
      */
     private function getExtractor($format): callable
     {
@@ -215,7 +219,7 @@ final class Tracer implements OTTracer
             return $this->extractors[$format];
         }
 
-        throw new UnsupportedFormat($format);
+        throw UnsupportedFormatException::forFormat($format);
     }
 
     private function hasParentInOptions(StartSpanOptions $options): ?SpanContext
@@ -223,7 +227,7 @@ final class Tracer implements OTTracer
         $references = $options->getReferences();
         foreach ($references as $ref) {
             if ($ref->isType(Reference::CHILD_OF)) {
-                return $ref->getContext();
+                return $ref->getSpanContext();
             }
         }
 

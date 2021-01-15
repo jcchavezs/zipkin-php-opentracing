@@ -4,6 +4,7 @@ namespace ZipkinOpenTracing;
 
 use OpenTracing\Span as OTSpan;
 use OpenTracing\ScopeManager as OTScopeManager;
+use OpenTracing\Scope as OTScope;
 
 final class ScopeManager implements OTScopeManager
 {
@@ -15,7 +16,7 @@ final class ScopeManager implements OTScopeManager
     /**
      * {@inheritdoc}
      */
-    public function activate(OTSpan $span, $finishSpanOnClose = true)
+    public function activate(OTSpan $span, bool $finishSpanOnClose = true): OTScope
     {
         // restorer allows to the scope to restore a parent scope without the
         // scope manager to expose a specific method for it.
@@ -30,7 +31,7 @@ final class ScopeManager implements OTScopeManager
     /**
      * {@inheritdoc}
      */
-    public function getActive()
+    public function getActive(): ?OTScope
     {
         return $this->active;
     }

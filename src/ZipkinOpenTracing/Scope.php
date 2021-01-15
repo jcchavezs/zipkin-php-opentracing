@@ -54,7 +54,7 @@ final class Scope implements OTScope
     /**
      * {@inheritdoc}
      */
-    public function getSpan()
+    public function getSpan(): OTSpan
     {
         return $this->wrapped;
     }
@@ -62,7 +62,7 @@ final class Scope implements OTScope
     /**
      * {@inheritdoc}
      */
-    public function close()
+    public function close(): void
     {
         if ($this->isClosed) {
             return;
