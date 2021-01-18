@@ -67,6 +67,22 @@ final class TracerTest extends TestCase
         );
     }
 
+    public function testStartSpanHasParentInOptions()
+    {
+        $tracing = TracingBuilder::create()->build();
+        $tracer = new Tracer($tracing);
+        $extractedContext = $tracer->extract(Formats\TEXT_MAP, [
+            'x-b3-sampled' => self::SAMPLED,
+            'x-b3-flags' => self::DEBUG,
+        ]);
+
+        $tracer->startSpan(self::OPERATION_NAME, [
+            'child_of' => $extractedContext,
+        ]);
+
+        $this->assertTrue(true);
+    }
+
     public function testStartSpanAsNoopWithNoParentSuccess()
     {
         $sampler = $this->prophesize(Sampler::class);
