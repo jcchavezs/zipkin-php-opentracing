@@ -2,7 +2,6 @@
 
 namespace ZipkinOpenTracing;
 
-use OpenTracing\ScopeManager as OTScopeManager;
 use Zipkin\Tracing as ZipkinTracing;
 use Zipkin\Tracer as ZipkinTracer;
 use Zipkin\Timestamp;
@@ -10,18 +9,19 @@ use Zipkin\Propagation\TraceContext;
 use Zipkin\Propagation\SamplingFlags;
 use Zipkin\Propagation\RequestHeaders;
 use Zipkin\Propagation\Map;
-use ZipkinOpenTracing\SpanContext as ZipkinOpenTracingContext;
-use ZipkinOpenTracing\Span as ZipkinOpenTracingSpan;
-use ZipkinOpenTracing\PartialSpanContext as ZipkinOpenPartialTracingContext;
-use ZipkinOpenTracing\NoopSpan as ZipkinOpenTracingNoopSpan;
+use ZipkinOpenTracing\SpanContext as ZipkinOTSpanContext;
+use ZipkinOpenTracing\Span as ZipkinOTSpan;
+use ZipkinOpenTracing\PartialSpanContext as ZipkinOTPartialTracingContext;
+use ZipkinOpenTracing\NoopSpan as ZipkinOTNoopSpan;
+use OpenTracing\UnsupportedFormatException;
 use OpenTracing\Tracer as OTTracer;
 use OpenTracing\StartSpanOptions;
 use OpenTracing\SpanContext as OTSpanContext;
+use OpenTracing\Span as OTSpan;
+use OpenTracing\ScopeManager as OTScopeManager;
+use OpenTracing\Scope as OTScope;
 use OpenTracing\Reference;
 use OpenTracing\Formats;
-use OpenTracing\UnsupportedFormatException;
-use OpenTracing\Span as OTSpan;
-use OpenTracing\Scope as OTScope;
 
 final class Tracer implements OTTracer
 {
@@ -116,7 +116,7 @@ final class Tracer implements OTTracer
             $span = $this->tracer->newTrace();
         } else {
             /**
-             * @var ZipkinOpenTracingContext $refContext
+             * @var ZipkinOTSpanContext $refContext
              */
             $refContext = $options->getReferences()[0]->getSpanContext();
             $context = $refContext->getContext();
@@ -129,13 +129,13 @@ final class Tracer implements OTTracer
         }
 
         if ($span->isNoop()) {
-            return ZipkinOpenTracingNoopSpan::create($span);
+            return ZipkinOTNoopSpan::create($span);
         }
 
         $span->start($options->getStartTime() ?: Timestamp\now());
         $span->setName($operationName);
 
-        $otSpan = ZipkinOpenTracingSpan::create($operationName, $span, null);
+        $otSpan = ZipkinOTSpan::create($operationName, $span, null);
 
         foreach ($options->getTags() as $key => $value) {
             $otSpan->setTag($key, $value);
@@ -151,7 +151,7 @@ final class Tracer implements OTTracer
      */
     public function inject(OTSpanContext $spanContext, string $format, &$carrier): void
     {
-        if ($spanContext instanceof ZipkinOpenTracingContext) {
+        if ($spanContext instanceof ZipkinOTSpanContext) {
             $injector = $this->getInjector($format);
             $injector($spanContext->getContext(), $carrier);
             return;
@@ -173,11 +173,11 @@ final class Tracer implements OTTracer
         $extractedContext = $extractor($carrier);
 
         if ($extractedContext instanceof TraceContext) {
-            return ZipkinOpenTracingContext::fromTraceContext($extractedContext);
+            return ZipkinOTSpanContext::fromTraceContext($extractedContext);
         }
 
         if ($extractedContext instanceof SamplingFlags) {
-            return ZipkinOpenPartialTracingContext::fromSamplingFlags($extractedContext);
+            return ZipkinOTPartialTracingContext::fromSamplingFlags($extractedContext);
         }
 
         throw new \UnexpectedValueException(\sprintf(
