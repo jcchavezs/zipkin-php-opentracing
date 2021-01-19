@@ -222,7 +222,7 @@ final class Tracer implements OTTracer
         throw UnsupportedFormatException::forFormat($format);
     }
 
-    private function hasParentInOptions(StartSpanOptions $options): ?SpanContext
+    private function hasParentInOptions(StartSpanOptions $options): ?OTSpanContext
     {
         $references = $options->getReferences();
         foreach ($references as $ref) {
