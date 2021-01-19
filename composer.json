@@ -41,6 +41,6 @@
         "fix-lint": "./vendor/bin/phpcbf --standard=ZEND --standard=PSR2 --ignore=*/vendor/* ./",
         "lint": "./vendor/bin/phpcs --standard=ZEND --standard=PSR2 --ignore=*/vendor/* ./",
         "test": "./vendor/bin/phpunit tests",
-        "static-check": "phpstan analyse src --level 8 --memory-limit 512MB"
+        "static-check": "phpstan analyse src --level 8 --memory-limit 512M"
     }
 }
