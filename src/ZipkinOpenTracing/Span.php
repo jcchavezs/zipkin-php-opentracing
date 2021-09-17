@@ -2,51 +2,30 @@
 
 namespace ZipkinOpenTracing;
 
-use InvalidArgumentException;
-use OpenTracing\Tags;
-use OpenTracing\Span as OTSpan;
-use OpenTracing\SpanContext;
-use Zipkin\Endpoint;
-use Zipkin\Span as ZipkinSpan;
 use Zipkin\Timestamp;
+use Zipkin\Span as ZipkinSpan;
+use Zipkin\Endpoint;
 use ZipkinOpenTracing\SpanContext as ZipkinOpenTracingContext;
+use OpenTracing\Tags;
+use OpenTracing\SpanContext;
+use OpenTracing\Span as OTSpan;
+use InvalidArgumentException;
 
 final class Span implements OTSpan
 {
-    /**
-     * @var ZipkinSpan
-     */
-    private $span;
+    private ZipkinSpan $span;
 
-    /**
-     * @var string
-     */
-    private $operationName;
+    private string $operationName;
 
-    /**
-     * @var SpanContext
-     */
-    private $context;
+    private SpanContext $context;
 
-    /**
-     * @var bool
-     */
-    private $hasRemoteEndpoint;
+    private bool $hasRemoteEndpoint;
 
-    /**
-     * @var array;
-     */
-    private $remoteEndpointArgs;
+    private array $remoteEndpointArgs;
 
-    /**
-     * @var Scope
-     */
-    private $scope;
+    private Scope $scope;
 
-    /**
-     * @var bool
-     */
-    private $shouldCloseScopeOnFinish = true;
+    private bool $shouldCloseScopeOnFinish = true;
 
     private function __construct($operationName, ZipkinSpan $span, array $remoteEndpointArgs = null)
     {
@@ -55,16 +34,10 @@ final class Span implements OTSpan
         $this->context = ZipkinOpenTracingContext::fromTraceContext($span->getContext());
         $this->hasRemoteEndpoint = $remoteEndpointArgs !== null;
         $this->remoteEndpointArgs = $this->hasRemoteEndpoint ?
-            $remoteEndpointArgs : [Endpoint::DEFAULT_SERVICE_NAME, null, null, null];
+            $remoteEndpointArgs : ['', null, null, null];
     }
 
-    /**
-     * @param string $operationName
-     * @param ZipkinSpan $span
-     * @param array|null $remoteEndpointArgs
-     * @return Span
-     */
-    public static function create($operationName, ZipkinSpan $span, array $remoteEndpointArgs = null)
+    public static function create(string $operationName, ZipkinSpan $span, array $remoteEndpointArgs = null): Span
     {
         return new self($operationName, $span, $remoteEndpointArgs);
     }
@@ -96,7 +69,7 @@ final class Span implements OTSpan
 
         $this->span->finish($finishTime ?: Timestamp\now());
 
-        if ($this->scope) {
+        if ($this->scope && $this->shouldCloseScopeOnFinish) {
             $this->scope->close();
         }
     }
@@ -190,12 +163,12 @@ final class Span implements OTSpan
         return $this->context->getBaggageItem($key);
     }
 
-    public function setScope(Scope $scope)
+    public function setScope(Scope $scope): void
     {
         $this->scope = $scope;
     }
 
-    public function shouldCloseScopeOnFinish($flag = true)
+    public function shouldCloseScopeOnFinish($flag = true): void
     {
         $this->shouldCloseScopeOnFinish = $flag;
     }

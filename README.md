@@ -3,7 +3,7 @@
 [![Travis CI](https://travis-ci.org/jcchavezs/zipkin-php-opentracing.svg?branch=master)](https://travis-ci.org/jcchavezs/zipkin-php-opentracing)
 [![OpenTracing Badge](https://img.shields.io/badge/OpenTracing-enabled-blue.svg)](http://opentracing.io)
 [![Total Downloads](https://poser.pugx.org/jcchavezs/zipkin-opentracing/downloads)](https://packagist.org/packages/jcchavezs/zipkin-opentracing)
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.1-8892BF.svg)](https://php.net/)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.4-8892BF.svg)](https://php.net/)
 [![License](https://img.shields.io/packagist/l/jcchavezs/zipkin-opentracing.svg)](https://github.com/jcchavezs/zipkin-php-opentracing/blob/master/LICENSE)
 
 [Zipkin](http://zipkin.io) implementation for OpenTracingTracer in PHP.

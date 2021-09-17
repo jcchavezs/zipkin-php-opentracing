@@ -2,17 +2,14 @@
 
 namespace ZipkinOpenTracing;
 
-use OpenTracing\Span as OTSpan;
-use OpenTracing\SpanContext as OTSpanContext;
 use Zipkin\Span as ZipkinSpan;
 use ZipkinOpenTracing\SpanContext as ZipkinOpenTracingContext;
+use OpenTracing\SpanContext as OTSpanContext;
+use OpenTracing\Span as OTSpan;
 
 final class NoopSpan implements OTSpan
 {
-    /**
-     * @var OTSpanContext|SpanContext
-     */
-    private $context;
+    private ZipkinOpenTracingContext $context;
 
     private function __construct(ZipkinSpan $span)
     {
@@ -23,14 +20,11 @@ final class NoopSpan implements OTSpan
      * @param ZipkinSpan $span
      * @return NoopSpan
      */
-    public static function create(ZipkinSpan $span)
+    public static function create(ZipkinSpan $span): NoopSpan
     {
         return new self($span);
     }
 
-    /**
-     * @return string
-     */
     public function getOperationName(): string
     {
         return '';
@@ -77,17 +71,13 @@ final class NoopSpan implements OTSpan
      * SpanContext::withBaggageItem to get a new one.
      *
      * If the span is already finished, a warning should be logged.
-     *
-     * @param string $key
-     * @param string $value
      */
     public function addBaggageItem(string $key, string $value): void
     {
     }
 
     /**
-     * @param string $key
-     * @return string
+     * {@inheritdoc}
      */
     public function getBaggageItem(string $key): ?string
     {

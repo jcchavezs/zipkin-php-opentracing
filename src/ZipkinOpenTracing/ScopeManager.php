@@ -8,10 +8,7 @@ use OpenTracing\Scope as OTScope;
 
 final class ScopeManager implements OTScopeManager
 {
-    /**
-     * @var Scope|null
-     */
-    private $active;
+    private ?Scope $active = null;
 
     /**
      * {@inheritdoc}

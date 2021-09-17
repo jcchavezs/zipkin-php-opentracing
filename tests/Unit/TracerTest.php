@@ -2,30 +2,33 @@
 
 namespace ZipkinOpenTracing\Tests\Unit;
 
-use OpenTracing\Exceptions\UnsupportedFormat;
-use OpenTracing\Formats;
-use OpenTracing\UnsupportedFormatException;
-use PHPUnit\Framework\TestCase;
-use Prophecy\Argument\Token\AnyValuesToken;
-use Prophecy\Argument;
 use Zipkin\TracingBuilder;
-use ZipkinOpenTracing\Span;
-use ZipkinOpenTracing\Tracer;
-use ZipkinOpenTracing\NoopSpan;
-use ZipkinOpenTracing\PartialSpanContext;
-use ZipkinOpenTracing\SpanContext;
+use Zipkin\Samplers\BinarySampler;
+use Zipkin\Sampler;
 use Zipkin\Propagation\TraceContext;
 use Zipkin\Propagation\DefaultSamplingFlags;
-use Zipkin\Sampler;
-use Zipkin\Samplers\BinarySampler;
+use ZipkinOpenTracing\Tracer;
+use ZipkinOpenTracing\SpanContext;
+use ZipkinOpenTracing\Span;
+use ZipkinOpenTracing\PartialSpanContext;
+use ZipkinOpenTracing\NoopSpan;
+use Prophecy\PhpUnit\ProphecyTrait;
+use Prophecy\Argument\Token\AnyValuesToken;
+use Prophecy\Argument;
+use PHPUnit\Framework\TestCase;
+use OpenTracing\UnsupportedFormatException;
+use OpenTracing\Formats;
+use OpenTracing\Exceptions\UnsupportedFormat;
 
 final class TracerTest extends TestCase
 {
-    const OPERATION_NAME = 'test';
-    const TRACE_ID = '48485a3953bb6124';
-    const SPAN_ID = '48485a3953bb6125';
-    const SAMPLED = '1';
-    const DEBUG = '1';
+    use ProphecyTrait;
+
+    public const OPERATION_NAME = 'test';
+    public const TRACE_ID = '48485a3953bb6124';
+    public const SPAN_ID = '48485a3953bb6125';
+    public const SAMPLED = '1';
+    public const DEBUG = '1';
 
     public function testExtractOfSamplingFlagsSuccess()
     {
