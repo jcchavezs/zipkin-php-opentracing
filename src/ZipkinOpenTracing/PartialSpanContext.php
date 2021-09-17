@@ -2,24 +2,18 @@
 
 namespace ZipkinOpenTracing;
 
-use ArrayIterator;
-use OpenTracing\SpanContext as OTSpanContext;
 use Zipkin\Propagation\SamplingFlags;
+use OpenTracing\SpanContext as OTSpanContext;
+use ArrayIterator;
 
 /**
  * Used to wrap SamplingFlags coming from extractor
  */
 final class PartialSpanContext implements OTSpanContext, WrappedTraceContext
 {
-    /**
-     * @var SamplingFlags
-     */
-    private $samplingFlags;
+    private SamplingFlags $samplingFlags;
 
-    /**
-     * @var array
-     */
-    private $baggageItems;
+    private array $baggageItems;
 
     private function __construct(SamplingFlags $samplingFlags, array $baggageItems = [])
     {
@@ -27,11 +21,7 @@ final class PartialSpanContext implements OTSpanContext, WrappedTraceContext
         $this->baggageItems = $baggageItems;
     }
 
-    /**
-     * @param SamplingFlags $samplingFlags
-     * @return PartialSpanContext
-     */
-    public static function fromSamplingFlags(SamplingFlags $samplingFlags)
+    public static function fromSamplingFlags(SamplingFlags $samplingFlags): self
     {
         return new self($samplingFlags);
     }
@@ -39,7 +29,7 @@ final class PartialSpanContext implements OTSpanContext, WrappedTraceContext
     /**
      * @inheritdoc
      */
-    public function getIterator()
+    public function getIterator(): ArrayIterator
     {
         return new ArrayIterator($this->baggageItems);
     }
@@ -63,7 +53,7 @@ final class PartialSpanContext implements OTSpanContext, WrappedTraceContext
     /**
      * @inheritdoc
      */
-    public function getContext()
+    public function getContext(): SamplingFlags
     {
         return $this->samplingFlags;
     }

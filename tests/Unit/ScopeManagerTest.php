@@ -3,11 +3,14 @@
 namespace ZipkinOpenTracing\Tests\Unit;
 
 use ZipkinOpenTracing\ScopeManager;
+use Prophecy\PhpUnit\ProphecyTrait;
 use PHPUnit\Framework\TestCase;
 use OpenTracing\Span;
 
 final class ScopeManagerTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @var ScopeManager
      */

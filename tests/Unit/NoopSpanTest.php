@@ -2,16 +2,19 @@
 
 namespace ZipkinOpenTracing\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
-use Zipkin\Propagation\DefaultSamplingFlags;
-use Zipkin\Propagation\TraceContext;
 use Zipkin\Span as ZipkinSpan;
-use ZipkinOpenTracing\NoopSpan;
+use Zipkin\Propagation\TraceContext;
+use Zipkin\Propagation\DefaultSamplingFlags;
 use ZipkinOpenTracing\SpanContext;
+use ZipkinOpenTracing\NoopSpan;
+use Prophecy\PhpUnit\ProphecyTrait;
+use PHPUnit\Framework\TestCase;
 
 final class NoopSpanTest extends TestCase
 {
-    const TAG_KEY = 'test_key';
+    use ProphecyTrait;
+
+    public const TAG_KEY = 'test_key';
 
     public function testANoopSpanIsCreatedAndHasTheExpectedValues()
     {

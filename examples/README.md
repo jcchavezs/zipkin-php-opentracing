@@ -18,7 +18,7 @@ well how much time was spent in each service.
 This example has two services: frontend and backend. They both report 
 trace data to zipkin.
 
-To setup the demo, run 
+To setup the demo, run
 
 ```bash
 composer install
@@ -39,8 +39,8 @@ composer run-backend
 ```
 
 And then, request the frontend:
- 
-```
+
+```bash
 curl http://localhost:8081
 ```
 

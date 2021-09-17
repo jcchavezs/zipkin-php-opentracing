@@ -2,25 +2,28 @@
 
 namespace ZipkinOpenTracing\Tests\Unit;
 
-use DateTime;
-use OpenTracing\Tags;
-use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
-use Zipkin\Propagation\DefaultSamplingFlags;
-use Zipkin\Propagation\TraceContext;
 use Zipkin\Span as ZipkinSpan;
+use Zipkin\Propagation\TraceContext;
+use Zipkin\Propagation\DefaultSamplingFlags;
 use ZipkinOpenTracing\Span;
+use Prophecy\PhpUnit\ProphecyTrait;
+use Prophecy\Argument;
+use PHPUnit\Framework\TestCase;
+use OpenTracing\Tags;
+use DateTime;
 
 final class SpanTest extends TestCase
 {
-    const OPERATION_NAME = 'test_name';
-    const SPAN_KIND = 'kind';
-    const TAG_KEY = 'test_key';
-    const TAG_VALUE = 'test_value';
-    const PEER_SERVICE_VALUE = 'test_service';
-    const PEER_HOST_IPV4_VALUE = '127.0.0.2';
-    const PEER_HOST_IPV6_VALUE = null;
-    const PEER_PORT_VALUE = 12345;
+    use ProphecyTrait;
+
+    public const OPERATION_NAME = 'test_name';
+    public const SPAN_KIND = 'kind';
+    public const TAG_KEY = 'test_key';
+    public const TAG_VALUE = 'test_value';
+    public const PEER_SERVICE_VALUE = 'test_service';
+    public const PEER_HOST_IPV4_VALUE = '127.0.0.2';
+    public const PEER_HOST_IPV6_VALUE = null;
+    public const PEER_PORT_VALUE = 12345;
 
     public function testASpanIsCreatedAndHasTheExpectedValues()
     {
@@ -96,7 +99,7 @@ final class SpanTest extends TestCase
         return [
             [$now, $expectedTimestamp],
             [(float)$now, $expectedTimestamp],
-            [(new DateTime)->setTimestamp($now), $expectedTimestamp],
+            [(new DateTime())->setTimestamp($now), $expectedTimestamp],
         ];
     }
 }

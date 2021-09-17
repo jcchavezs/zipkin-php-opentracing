@@ -2,7 +2,6 @@
 
 namespace ZipkinOpenTracing;
 
-use OpenTracing\ScopeManager as OTScopeManager;
 use Zipkin\Tracing as ZipkinTracing;
 use Zipkin\Tracer as ZipkinTracer;
 use Zipkin\Timestamp;
@@ -14,31 +13,29 @@ use ZipkinOpenTracing\SpanContext as ZipkinOpenTracingContext;
 use ZipkinOpenTracing\Span as ZipkinOpenTracingSpan;
 use ZipkinOpenTracing\PartialSpanContext as ZipkinOpenPartialTracingContext;
 use ZipkinOpenTracing\NoopSpan as ZipkinOpenTracingNoopSpan;
+use OpenTracing\UnsupportedFormatException;
 use OpenTracing\Tracer as OTTracer;
 use OpenTracing\StartSpanOptions;
 use OpenTracing\SpanContext as OTSpanContext;
+use OpenTracing\Span as OTSpan;
+use OpenTracing\ScopeManager as OTScopeManager;
+use OpenTracing\Scope as OTScope;
 use OpenTracing\Reference;
 use OpenTracing\Formats;
-use OpenTracing\UnsupportedFormatException;
-use OpenTracing\Span as OTSpan;
-use OpenTracing\Scope as OTScope;
 
 final class Tracer implements OTTracer
 {
-    /**
-     * @var ZipkinTracer
-     */
-    private $tracer;
+    private ZipkinTracer $tracer;
 
     /**
      * @var callable[]|array
      */
-    private $injectors;
+    private array $injectors;
 
     /**
      * @var callable[]|array
      */
-    private $extractors;
+    private array $extractors;
 
     public function __construct(ZipkinTracing $tracing)
     {
@@ -145,7 +142,8 @@ final class Tracer implements OTTracer
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     *
      * @throws \InvalidArgumentException
      * @throws \UnexpectedValueException
      */
@@ -164,7 +162,8 @@ final class Tracer implements OTTracer
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     *
      * @throws \UnexpectedValueException
      */
     public function extract(string $format, $carrier): ?OTSpanContext

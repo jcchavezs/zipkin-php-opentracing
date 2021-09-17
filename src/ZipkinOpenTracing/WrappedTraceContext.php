@@ -9,5 +9,5 @@ interface WrappedTraceContext
     /**
      * @return SamplingFlags
      */
-    public function getContext();
+    public function getContext(): SamplingFlags;
 }

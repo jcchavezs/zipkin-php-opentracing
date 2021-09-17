@@ -7,30 +7,15 @@ use OpenTracing\Scope as OTScope;
 
 final class Scope implements OTScope
 {
-    /**
-     * @var ScopeManager
-     */
-    private $scopeManager;
+    private ScopeManager $scopeManager;
 
-    /**
-     * @var OTSpan
-     */
-    private $wrapped;
+    private OTSpan $wrapped;
 
-    /**
-     * @var bool
-     */
-    private $finishSpanOnClose;
+    private bool $finishSpanOnClose;
 
-    /**
-     * @var Scope
-     */
-    private $toRestore;
+    private ?Scope $toRestore = null;
 
-    /**
-     * @var bool
-     */
-    private $isClosed = false;
+    private bool $isClosed = false;
 
     /**
      * @var callable|function(?Scope):void
