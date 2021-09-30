@@ -42,5 +42,11 @@
         "fix-lint": "./vendor/bin/phpcbf --standard=ZEND --standard=PSR2 --ignore=*/vendor/* ./",
         "lint": "./vendor/bin/phpcs --standard=ZEND --standard=PSR2 --ignore=*/vendor/* ./",
         "test": "./vendor/bin/phpunit tests"
-    }
+    },
+    "funding": [
+        {
+            "type": "paypal",
+            "url": "https://www.paypal.me/jcchavezs"
+        }
+    ]
 }
