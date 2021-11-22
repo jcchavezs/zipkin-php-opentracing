@@ -23,10 +23,6 @@ final class Span implements OTSpan
 
     private array $remoteEndpointArgs;
 
-    private ?Scope $scope = null;
-
-    private bool $shouldCloseScopeOnFinish = true;
-
     private function __construct($operationName, ZipkinSpan $span, array $remoteEndpointArgs = null)
     {
         $this->operationName = $operationName;
@@ -68,10 +64,6 @@ final class Span implements OTSpan
         }
 
         $this->span->finish($finishTime ?: Timestamp\now());
-
-        if ($this->scope && $this->shouldCloseScopeOnFinish) {
-            $this->scope->close();
-        }
     }
 
     /**
@@ -161,15 +153,5 @@ final class Span implements OTSpan
     public function getBaggageItem(string $key): ?string
     {
         return $this->context->getBaggageItem($key);
-    }
-
-    public function setScope(Scope $scope): void
-    {
-        $this->scope = $scope;
-    }
-
-    public function shouldCloseScopeOnFinish($flag = true): void
-    {
-        $this->shouldCloseScopeOnFinish = $flag;
     }
 }
