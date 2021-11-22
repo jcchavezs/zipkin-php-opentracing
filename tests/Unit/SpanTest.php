@@ -56,24 +56,10 @@ final class SpanTest extends TestCase
         $span->setTag(Tags\PEER_PORT, self::PEER_PORT_VALUE);
     }
 
-    public function testFinishASpan()
-    {
-        $now = time();
-        $context = TraceContext::createAsRoot(DefaultSamplingFlags::createAsEmpty());
-        $zipkinSpan = $this->prophesize(ZipkinSpan::class);
-        $zipkinSpan->getContext()->willReturn($context);
-        $zipkinSpan->finish($now)->shouldBeCalled();
-        $span = Span::create(self::OPERATION_NAME, $zipkinSpan->reveal());
-        $span->finish($now);
-    }
-
     public function testLogASpanWithNullTimestampSuccess()
     {
         $context = TraceContext::createAsRoot(DefaultSamplingFlags::createAsEmpty());
 
-        /**
-         * @var ZipkinSpan
-         */
         $zipkinSpan = $this->prophesize(ZipkinSpan::class);
         $zipkinSpan->getContext()->willReturn($context);
         $zipkinSpan->annotate('field', Argument::any())->shouldBeCalled();
@@ -89,9 +75,6 @@ final class SpanTest extends TestCase
     {
         $context = TraceContext::createAsRoot(DefaultSamplingFlags::createAsEmpty());
 
-        /**
-         * @var ZipkinSpan
-         */
         $zipkinSpan = $this->prophesize(ZipkinSpan::class);
         $zipkinSpan->getContext()->willReturn($context);
         $zipkinSpan->annotate('field', $expectedTimestamp)->shouldBeCalled();

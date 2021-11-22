@@ -22,6 +22,7 @@ final class ScopeManager implements OTScopeManager
         };
 
         $this->active = new Scope($this, $span, $finishSpanOnClose, $this->active, $restorer);
+
         return $this->active;
     }
 
