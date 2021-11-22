@@ -23,7 +23,7 @@ final class Span implements OTSpan
 
     private array $remoteEndpointArgs;
 
-    private Scope $scope;
+    private ?Scope $scope = null;
 
     private bool $shouldCloseScopeOnFinish = true;
 
