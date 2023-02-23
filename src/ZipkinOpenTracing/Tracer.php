@@ -37,6 +37,8 @@ final class Tracer implements OTTracer
      */
     private array $extractors;
 
+    private ScopeManager $scopeManager;
+
     public function __construct(ZipkinTracing $tracing)
     {
         $propagation = $tracing->getPropagation();
