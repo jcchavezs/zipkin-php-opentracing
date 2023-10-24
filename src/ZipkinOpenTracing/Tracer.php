@@ -106,7 +106,7 @@ final class Tracer implements OTTracer
             $options = StartSpanOptions::create($options);
         }
 
-        if (!$this->hasParentInOptions($options) && $this->getActiveSpan() !== null) {
+        if (!$options->shouldIgnoreActiveSpan() && !$this->hasParentInOptions($options) && $this->getActiveSpan() !== null) {
             $parent = $this->getActiveSpan()->getContext();
             $options = $options->withParent($parent);
         }
