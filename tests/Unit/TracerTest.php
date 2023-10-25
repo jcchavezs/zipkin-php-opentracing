@@ -108,6 +108,40 @@ final class TracerTest extends TestCase
         $this->assertInstanceOf(Span::class, $span);
     }
 
+    public function testStartSpanWithIgnoreActiveSpan()
+    {
+        $tracing = TracingBuilder::create()->build();
+        $tracer = new Tracer($tracing);
+        $firstSpan = $tracer->startActiveSpan(self::OPERATION_NAME);
+
+        $secondSpan = $tracer->startSpan(self::OPERATION_NAME, [
+            'ignore_active_span' => true,
+        ]);
+
+        $firstContext = $firstSpan->getSpan()->getContext()->getContext();
+        $secondContext = $secondSpan->getContext()->getContext();
+
+        $this->assertNotEquals($firstContext->getTraceId(), $secondContext->getTraceId());
+        $this->assertTrue($secondContext->getParentId() === null);
+    }
+
+    public function testStartActiveSpanWithIgnoreActiveSpan()
+    {
+        $tracing = TracingBuilder::create()->build();
+        $tracer = new Tracer($tracing);
+        $firstSpan = $tracer->startActiveSpan(self::OPERATION_NAME);
+
+        $secondSpan = $tracer->startActiveSpan(self::OPERATION_NAME, [
+            'ignore_active_span' => true,
+        ]);
+
+        $firstContext = $firstSpan->getSpan()->getContext()->getContext();
+        $secondContext = $secondSpan->getSpan()->getContext()->getContext();
+
+        $this->assertNotEquals($firstContext->getTraceId(), $secondContext->getTraceId());
+        $this->assertTrue($secondContext->getParentId() === null);
+    }
+
     public function testStartSpanWithParentSuccess()
     {
         $tracing = TracingBuilder::create()->build();
