@@ -24,7 +24,7 @@ final class Request implements RequestInterface
     /**
      *  @return string[][]
      */
-    public function getHeaders()
+    public function getHeaders(): array
     {
         return $this->headers;
     }
@@ -32,7 +32,7 @@ final class Request implements RequestInterface
     /**
      * @return bool
      */
-    public function hasHeader($name)
+    public function hasHeader($name): bool
     {
         foreach ($this->headers as $key => $value) {
             if ($key === strtolower($name)) {
@@ -46,7 +46,7 @@ final class Request implements RequestInterface
     /**
      * @return string[]
      */
-    public function getHeader($name)
+    public function getHeader($name): array
     {
         foreach ($this->headers as $key => $value) {
             if ($key === strtolower($name)) {
@@ -57,7 +57,7 @@ final class Request implements RequestInterface
         return [];
     }
 
-    public function withHeader($name, $value)
+    public function withHeader($name, $value): \Psr\Http\Message\MessageInterface
     {
         $this->headers[strtolower($name)] = [$value];
         return $this;
@@ -67,67 +67,67 @@ final class Request implements RequestInterface
     // parsing of headers
     //
     // phpcs:disable
-    public function withAddedHeader($name, $value)
+    public function withAddedHeader($name, $value): \Psr\Http\Message\MessageInterface
     {
         throw new LogicException('not implemented');
     }
 
-    public function getProtocolVersion()
+    public function getProtocolVersion(): string
     {
         throw new LogicException('not implemented');
     }
 
-    public function withProtocolVersion($version)
+    public function withProtocolVersion($version): \Psr\Http\Message\MessageInterface
     {
         throw new LogicException('not implemented');
     }
 
-    public function getHeaderLine($name)
+    public function getHeaderLine($name): string
     {
         throw new LogicException('not implemented');
     }
 
-    public function withoutHeader($name)
+    public function withoutHeader($name): \Psr\Http\Message\MessageInterface
     {
         throw new LogicException('not implemented');
     }
 
-    public function getBody()
+    public function getBody(): StreamInterface
     {
         throw new LogicException('not implemented');
     }
 
-    public function withBody(StreamInterface $body)
+    public function withBody(StreamInterface $body): \Psr\Http\Message\MessageInterface
     {
         throw new LogicException('not implemented');
     }
 
-    public function getRequestTarget()
+    public function getRequestTarget(): string
     {
         throw new LogicException('not implemented');
     }
 
-    public function withRequestTarget($requestTarget)
+    public function withRequestTarget($requestTarget): RequestInterface
     {
         throw new LogicException('not implemented');
     }
 
-    public function getMethod()
+    public function getMethod(): string
     {
         throw new LogicException('not implemented');
     }
 
-    public function withMethod($method)
+    public function withMethod($method): RequestInterface
     {
         throw new LogicException('not implemented');
     }
 
-    public function getUri()
+    public function getUri(): UriInterface
     {
         throw new LogicException('not implemented');
     }
 
-    public function withUri(UriInterface $uri, $preserveHost = false)
+    public function withUri(UriInterface $uri, $preserveHost = false): RequestInterface
     {
         throw new LogicException('not implemented');
     }
