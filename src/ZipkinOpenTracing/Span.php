@@ -23,7 +23,7 @@ final class Span implements OTSpan
 
     private array $remoteEndpointArgs;
 
-    private function __construct($operationName, ZipkinSpan $span, array $remoteEndpointArgs = null)
+    private function __construct($operationName, ZipkinSpan $span, ?array $remoteEndpointArgs = null)
     {
         $this->operationName = $operationName;
         $this->span = $span;
@@ -33,7 +33,7 @@ final class Span implements OTSpan
             $remoteEndpointArgs : ['', null, null, null];
     }
 
-    public static function create(string $operationName, ZipkinSpan $span, array $remoteEndpointArgs = null): Span
+    public static function create(string $operationName, ZipkinSpan $span, ?array $remoteEndpointArgs = null): Span
     {
         return new self($operationName, $span, $remoteEndpointArgs);
     }
